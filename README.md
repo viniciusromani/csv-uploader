@@ -4,18 +4,19 @@ Be sure to read **all** of this document carefully, and follow the guidelines wi
 
 ## Context
 
-Use Ruby On Rails to implement a pipeline to upload and process the following CSV file containing a list of products.
+Use Ruby On Rails to implement a pipeline to upload and process the following CSV file containing a list of products. The file could contain many rows.
 
 [CSV File](TODO)
 
 
 ## Requirements
 
-1. The products should be stored along with multiple exchange rates at the time of the upload utilizing this [API](https://github.com/fawazahmed0/currency-api) (include at least 5 currencies, we should be able to add more currencies later on).
+1. The products should be stored along with multiple exchange rates at the time of the upload utilizing this [API](https://github.com/fawazahmed0/currency-api) (include at least 5 currencies, we should be able to add more currencies later on). There should be validations on the presence of fields.
 2. There should be a CRUD for products and exchange rates for those products after they’ve been uploaded.
-3. The listing endpoint should return all the processed rows as well as all the available conversions that were stored at the time of the data intake.
+3. There should be an index endpoint should return all the processed rows as well as all the available conversions that were stored at the time of the data intake.
 4. There should be a way to filter and sort products
 5. Include tests for all the key areas
+6. Resourceful routing only
 
 ### Bonus
 
