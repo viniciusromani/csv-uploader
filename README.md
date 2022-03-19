@@ -6,7 +6,7 @@ Be sure to read **all** of this document carefully, and follow the guidelines wi
 
 Use Ruby On Rails to implement a pipeline to upload and process the following CSV file containing a list of products. The file could contain many rows.
 
-[CSV File](TODO)
+[CSV File](https://github.com/flatironsdevelopment/rails_test/blob/main/data.csv)
 
 
 ## Requirements
