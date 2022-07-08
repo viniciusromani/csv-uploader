@@ -13,7 +13,7 @@ Use Ruby On Rails to implement a pipeline to upload and process the following CS
 
 1. The products should be stored along with multiple exchange rates at the time of the upload utilizing this [API](https://github.com/fawazahmed0/currency-api) (include at least 5 currencies, we should be able to add more currencies later on). There should be validations on the presence of fields.
 2. There should be a CRUD for products and exchange rates for those products after they’ve been uploaded.
-3. There should be an index endpoint should return all the processed rows as well as all the available conversions that were stored at the time of the data intake.
+3. There should be an index endpoint returning all the processed rows as well as all the available conversions that were stored at the time of the data intake.
 4. There should be a way to filter and sort products
 5. Include tests for all the key areas
 6. Resourceful routing only
