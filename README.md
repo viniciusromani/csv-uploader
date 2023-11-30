@@ -20,7 +20,6 @@ Use Ruby On Rails to implement a pipeline to upload and process the following CS
 
 ### Bonus
 
-- Deploy to Heroku
 - Write concise and clear commit messages
 - Describe improvement opportunities when you conclude
 
