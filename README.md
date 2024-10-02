@@ -1,19 +1,19 @@
-# Flatirons Development Back-end Rails Developer Coding Test
+# Flatirons Development Back-end Rails/NodeJS Developer Coding Test
 
 Be sure to read **all** of this document carefully, and follow the guidelines within.
 
 ## Context
 
-Use Ruby On Rails to implement a pipeline to upload and process the following CSV file containing a list of products. The file could contain up to 100k rows.
+Use Ruby On Rails or NestJS to implement a web application to upload and process and store into a database the following CSV file containing a list of products. The file could contain up to 100k rows.
 
 [CSV File](https://github.com/flatironsdevelopment/rails_test/raw/main/data.csv)
 
 
 ## Requirements
 
-1. The products should be stored along with multiple exchange rates at the time of the upload utilizing this [API](https://github.com/fawazahmed0/currency-api) (include at least 5 currencies, we should be able to add more currencies later on). There should be validations on the presence of fields.
+1. The products should be stored along with multiple exchange rates at the time of the upload utilizing this [API](https://github.com/fawazahmed0/exchange-api) (include at least 5 currencies, we should be able to add more currencies later on). There should be validations on the presence of fields.
 3. There should be an index endpoint returning all the processed rows as well as all the available conversions that were stored at the time of the data intake.
-4. There should be a way to filter and sort products
+4. There should be a way to filter and sort the data
 
 ## Submission
 
