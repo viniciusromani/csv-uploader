@@ -6,7 +6,7 @@ Be sure to read **all** of this document carefully, and follow the guidelines wi
 
 Use Ruby On Rails or NestJS to implement a web application that can upload, process, and store into a database a CSV file containing a list of products. The file may contain up to 100k rows.
 
-[CSV File](https://github.com/flatironsdevelopment/rails_test/raw/main/data.csv)
+[CSV File](https://github.com/flatironsdevelopment/rails_node_test/raw/main/data.csv)
 
 
 ## Requirements
