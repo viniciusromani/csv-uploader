@@ -14,7 +14,7 @@ Use Ruby On Rails or NestJS to implement a web application that can upload, proc
 1. The products should be stored along with multiple exchange rates at the time of the upload utilizing this [API](https://github.com/fawazahmed0/exchange-api) (include at least 5 currencies). All product fields are required and must be present.
 2. Implement an endpoint that returns all the processed rows of product data along with the available currency conversions stored at the time of the upload. This endpoint should support filtering and sorting based on the name, price, and expiration fields
 4. The application should support CSV files with up to 200k rows.
-5. The front-end of the application should display a file upload input. While the file is uploading and being processed, there should be a loading indicator displayed. Once the file uploads, a success message should display
+5. The front-end should be a React application that displays a file upload input. While the file is uploading and being processed, there should be a loading indicator displayed. Once the file uploads, a success message should display. 
 
 ## Submission
 
