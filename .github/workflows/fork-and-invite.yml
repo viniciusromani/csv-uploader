@@ -18,6 +18,7 @@ jobs:
           script: |
             const baseRepo = context.repo.repo;
             const baseOwner = context.repo.owner;
+            console.log("access token length", process.env.PERSONAL_ACCESS_TOKEN.length)
 
             // Use Personal Access Token for authorization
             const forkResponse = await github.rest.repos.createFork({
