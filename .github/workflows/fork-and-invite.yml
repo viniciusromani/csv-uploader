@@ -25,18 +25,27 @@ jobs:
             });
 
             console.log("Forked Repository:", forkResponse.data.full_name);
-            return { forkName: forkResponse.data.full_name };
+
+            // Use GitHub Actions 'setOutput' to define the output
+            core.setOutput('forkName', forkResponse.data.full_name);
+
+      # Debug the fork output
+      - name: Debug Fork Output
+        run: |
+          echo "Forked Repo: ${{ steps.fork.outputs.forkName }}"
 
       # Transfer the forked repository to the organization
       - name: Transfer Repository to Organization
         id: transfer
         uses: actions/github-script@v6
         env:
-          FORK_REPO: ${{ steps.fork.outputs.forkName }} # Pass the forked repo name as an env variable
+          FORK_REPO: ${{ steps.fork.outputs.forkName }}
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
-            const forkRepoFullName = process.env.FORK_REPO.trim(); // Ensure no extra spaces or quotes
+            const forkRepoFullName = process.env.FORK_REPO?.trim(); // Ensure no null, empty, or undefined
+            if (!forkRepoFullName) throw new Error("Fork repo full name is empty or undefined");
+
             const [owner, repo] = forkRepoFullName.split('/');
             const newOwner = "flatironsdevelopment";
 
