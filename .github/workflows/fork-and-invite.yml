@@ -25,7 +25,7 @@ jobs:
             });
 
             console.log("Forked Repository:", forkResponse.data.full_name);
-            return forkResponse.data.full_name; // Returns "mikefrederick/original-repo"
+            return forkResponse.data.full_name; // Returns "mikefrederick/rails_node_test"
 
       # Transfer the forked repository to the organization
       - name: Transfer Repository to Organization
@@ -37,8 +37,10 @@ jobs:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
             const forkRepoFullName = process.env.FORK_REPO; // Access the passed env variable
-            const [owner, repo] = forkRepoFullName.split('/');
+            const [owner, repo] = forkRepoFullName.split('/'); // Ensure valid parsing
             const newOwner = "flatironsdevelopment";
+
+            console.log(`Transferring repository: ${forkRepoFullName} to ${newOwner}`);
 
             const transferResponse = await github.rest.repos.transfer({
               owner: owner,
@@ -47,25 +49,3 @@ jobs:
             });
 
             console.log("Transferred Repository:", transferResponse.data.full_name);
-            return transferResponse.data.full_name;
-
-      # Add a collaborator (Optional)
-      - name: Add User to Transferred Repo
-        uses: actions/github-script@v6
-        env:
-          TRANSFERRED_REPO: ${{ steps.transfer.outputs.result }} # Pass the transferred repo name
-        with:
-          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          script: |
-            const transferredRepoFullName = process.env.TRANSFERRED_REPO; // Access the passed env variable
-            const [owner, repo] = transferredRepoFullName.split('/');
-            const username = context.payload.issue.body.trim(); // GitHub username from issue body
-
-            await github.rest.repos.addCollaborator({
-              owner: owner,
-              repo: repo,
-              username: username,
-              permission: 'push', // Options: pull, triage, push, maintain, admin
-            });
-
-            console.log("User Added as Collaborator:", username);
