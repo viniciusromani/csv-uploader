@@ -13,7 +13,12 @@ jobs:
       repository-projects: write
 
     steps:
-      # Fork the repository
+      - name: Test Fork with PAT
+        run: |
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
+            https://api.github.com/repos/flatironsdevelopment/rails_node_test/forks
+            # Fork the repository
       - name: Fork Repository
         id: fork
         uses: actions/github-script@v6
