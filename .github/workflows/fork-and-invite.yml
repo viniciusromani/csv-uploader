@@ -9,10 +9,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Clone the original repository
+      # Clone the original repository using Personal Access Token
       - name: Clone Original Repository
+        env:
+          GITHUB_PAT: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
-          git clone --bare https://github.com/flatironsdevelopment/rails_node_test.git
+          git clone --bare https://$GITHUB_PAT@github.com/flatironsdevelopment/rails_node_test.git
           cd rails_node_test.git
           git bundle create repo.bundle --all
 
@@ -38,9 +40,10 @@ jobs:
       - name: Push Contents to New Repository
         env:
           NEW_REPO_URL: ${{ steps.create-repo.outputs.newRepoCloneUrl }}
+          GITHUB_PAT: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
           cd rails_node_test.git
-          git remote add new-origin $NEW_REPO_URL
+          git remote add new-origin https://$GITHUB_PAT@$NEW_REPO_URL
           git push --mirror new-origin
 
       # Add user as a collaborator to the new repository
