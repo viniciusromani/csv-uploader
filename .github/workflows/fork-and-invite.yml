@@ -33,7 +33,7 @@ jobs:
               private: true,
             });
             core.setOutput("newRepoName", newRepoName);
-            core.setOutput("newRepoCloneUrl", response.data.clone_url);
+            core.setOutput("newRepoCloneUrl", response.data.clone_url); // This URL already includes https://
             core.setOutput("newRepoHtmlUrl", response.data.html_url);
 
       # Push contents to the new repository
@@ -43,7 +43,7 @@ jobs:
           GITHUB_PAT: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
         run: |
           cd rails_node_test.git
-          git remote add new-origin https://$GITHUB_PAT@$NEW_REPO_URL
+          git remote add new-origin https://$GITHUB_PAT@${NEW_REPO_URL#https://}
           git push --mirror new-origin
 
       # Add user as a collaborator to the new repository
