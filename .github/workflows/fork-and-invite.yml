@@ -1,4 +1,4 @@
-name: Fork and Add Collaborator
+name: Fork Repository and Add Collaborator
 
 on:
   issues:
@@ -9,11 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Check out the repository
-      - name: Checkout Repo
-        uses: actions/checkout@v3
-
-      # Fork the base repository
+      # Fork the repository
       - name: Fork Repository
         id: fork
         uses: actions/github-script@v6
@@ -21,46 +17,29 @@ jobs:
           script: |
             const baseRepo = context.repo.repo;
             const baseOwner = context.repo.owner;
+
+            // Fork the repository
             const forkResponse = await github.rest.repos.createFork({
               owner: baseOwner,
               repo: baseRepo,
             });
-            return forkResponse.data.full_name;  # Returns "username/new-repo"
 
-      # Add the user as a collaborator
-      - name: Add User to Repo
-        id: add-collaborator
+            console.log("Forked Repo Name:", forkResponse.data.full_name);
+            return forkResponse.data.full_name;
+
+      # Add a collaborator
+      - name: Add User to Forked Repo
         uses: actions/github-script@v6
         with:
           script: |
-            const username = context.payload.issue.body.trim(); // Assuming GitHub username is in issue body
-            const repoFullName = steps.fork.outputs.result;
-            const [owner, repo] = repoFullName.split('/');
-            
+            const forkRepoFullName = steps.fork.outputs.result; // Forked repo name
+            const [owner, repo] = forkRepoFullName.split('/');
+            const username = context.payload.issue.body.trim(); // GitHub username from issue body
+
+            // Add the user as a collaborator
             await github.rest.repos.addCollaborator({
               owner: owner,
               repo: repo,
               username: username,
-              permission: 'push', // Options: pull, triage, push, maintain, admin
+              permission: 'push', // Options: pull, push, triage, maintain, admin
             });
-            return `https://github.com/${repoFullName}`;
-
-      # Send an email with the repository link
-      - name: Send Email
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 587
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: 'Your New Repository'
-          body: |
-            Hello,
-
-            A new repository has been created for you. You have been added as a collaborator and can access it here:
-            ${{ steps.add-collaborator.outputs.result }}
-
-            Best,
-            The Team
-          to: recipient@example.com  # Replace with the user's email if known
-          from: ${{ secrets.EMAIL_USERNAME }}
