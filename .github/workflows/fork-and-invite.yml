@@ -1,4 +1,4 @@
-name: Fork and Transfer Repository
+name: Create New Repository with Same Contents
 
 on:
   issues:
@@ -9,52 +9,59 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Fork the repository under your personal account
-      - name: Fork Repository
-        id: fork
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          script: |
-            const baseRepo = context.repo.repo;
-            const baseOwner = context.repo.owner;
-
-            const forkResponse = await github.rest.repos.createFork({
-              owner: baseOwner,
-              repo: baseRepo,
-            });
-
-            console.log("Forked Repository:", forkResponse.data.full_name);
-
-            // Use GitHub Actions 'setOutput' to define the output
-            core.setOutput('forkName', forkResponse.data.full_name);
-
-      # Debug the fork output
-      - name: Debug Fork Output
+      # Clone the original repository
+      - name: Clone Original Repository
         run: |
-          echo "Forked Repo: ${{ steps.fork.outputs.forkName }}"
+          git clone --bare https://github.com/flatironsdevelopment/rails_node_test.git
+          cd rails_node_test.git
+          git bundle create repo.bundle --all
 
-      # Transfer the forked repository to the organization
-      - name: Transfer Repository to Organization
-        id: transfer
+      # Create a new repository in the organization
+      - name: Create New Repository
+        id: create-repo
         uses: actions/github-script@v6
-        env:
-          FORK_REPO: ${{ steps.fork.outputs.forkName }}
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
-            const forkRepoFullName = process.env.FORK_REPO?.trim(); // Ensure no null, empty, or undefined
-            if (!forkRepoFullName) throw new Error("Fork repo full name is empty or undefined");
+            const username = context.payload.issue.body.trim(); // GitHub username from the issue body
+            const newRepoName = `rails_node_test_${username}`;
+            const response = await github.rest.repos.createInOrg({
+              org: "flatironsdevelopment",
+              name: newRepoName,
+              private: true,
+            });
+            core.setOutput("newRepoName", newRepoName);
+            core.setOutput("newRepoCloneUrl", response.data.clone_url);
+            core.setOutput("newRepoHtmlUrl", response.data.html_url);
 
-            const [owner, repo] = forkRepoFullName.split('/');
-            const newOwner = "flatironsdevelopment";
+      # Push contents to the new repository
+      - name: Push Contents to New Repository
+        env:
+          NEW_REPO_URL: ${{ steps.create-repo.outputs.newRepoCloneUrl }}
+        run: |
+          cd rails_node_test.git
+          git remote add new-origin $NEW_REPO_URL
+          git push --mirror new-origin
 
-            console.log(`Transferring repository: ${forkRepoFullName} to ${newOwner} under ${owner}`);
+      # Add user as a collaborator to the new repository
+      - name: Add Collaborator
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          script: |
+            const username = context.payload.issue.body.trim(); // GitHub username from the issue body
+            const newRepoName = "${{ steps.create-repo.outputs.newRepoName }}"; // Repository name
 
-            const transferResponse = await github.rest.repos.transfer({
-              owner: owner,
-              repo: repo,
-              new_owner: newOwner,
+            await github.rest.repos.addCollaborator({
+              owner: "flatironsdevelopment",
+              repo: newRepoName,
+              username: username,
+              permission: "push", // Options: pull, triage, push, maintain, admin
             });
 
-            console.log("Transferred Repository:", transferResponse.data.full_name);
+            console.log(`User ${username} added as a collaborator to ${newRepoName}`);
+
+      # Output New Repository URL
+      - name: Display New Repository
+        run: |
+          echo "New Repository URL: ${{ steps.create-repo.outputs.newRepoHtmlUrl }}"
