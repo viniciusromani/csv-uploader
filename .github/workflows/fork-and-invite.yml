@@ -1,24 +1,15 @@
-name: Fork and Add Collaborator
+name: Fork and Transfer Repository
 
 on:
   issues:
-    types: [opened]  # Trigger when a new issue is created
+    types: [opened]
 
 jobs:
   process-issue:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-      repository-projects: write
 
     steps:
-      - name: Test Fork with PAT
-        run: |
-          curl -X POST \
-            -H "Authorization: token ${{ secrets.PERSONAL_ACCESS_TOKEN }}" \
-            https://api.github.com/repos/flatironsdevelopment/rails_node_test/forks
-            # Fork the repository
+      # Fork the repository under your personal account
       - name: Fork Repository
         id: fork
         uses: actions/github-script@v6
@@ -28,16 +19,47 @@ jobs:
             const baseRepo = context.repo.repo;
             const baseOwner = context.repo.owner;
 
-            // Explicitly use the PERSONAL_ACCESS_TOKEN for authorization
-            const forkResponse = await github.request('POST /repos/{owner}/{repo}/forks', {
+            const forkResponse = await github.rest.repos.createFork({
               owner: baseOwner,
               repo: baseRepo,
-              headers: {
-                authorization: `token ${process.env.PERSONAL_ACCESS_TOKEN}`,
-              },
             });
 
-            console.log("Forked Repo Name:", forkResponse.data.full_name);
-            return forkResponse.data.full_name;
-        env:
-          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+            console.log("Forked Repository:", forkResponse.data.full_name);
+            return forkResponse.data.full_name; // Returns "mikefrederick/original-repo"
+
+      # Transfer the forked repository to the organization
+      - name: Transfer Repository to Organization
+        id: transfer
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          script: |
+            const [owner, repo] = steps.fork.outputs.result.split('/');
+            const newOwner = "flatironsdevelopment";
+
+            const transferResponse = await github.rest.repos.transfer({
+              owner: owner,
+              repo: repo,
+              new_owner: newOwner,
+            });
+
+            console.log("Transferred Repository:", transferResponse.data.full_name);
+            return transferResponse.data.full_name;
+
+      # Add a collaborator (Optional)
+      - name: Add User to Transferred Repo
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+          script: |
+            const [owner, repo] = steps.transfer.outputs.result.split('/');
+            const username = context.payload.issue.body.trim(); // GitHub username from issue body
+
+            await github.rest.repos.addCollaborator({
+              owner: owner,
+              repo: repo,
+              username: username,
+              permission: 'push', // Options: pull, triage, push, maintain, admin
+            });
+
+            console.log("User Added as Collaborator:", username);
