@@ -23,7 +23,7 @@ jobs:
         id: fork
         uses: actions/github-script@v6
         with:
-          github-token: process.env.PERSONAL_ACCESS_TOKEN
+          github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
             const baseRepo = context.repo.repo;
             const baseOwner = context.repo.owner;
