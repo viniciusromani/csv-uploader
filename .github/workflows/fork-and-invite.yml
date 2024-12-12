@@ -34,7 +34,8 @@ jobs:
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
-            const [owner, repo] = steps.fork.outputs.result.split('/');
+            const forkRepoFullName = "${{ steps.fork.outputs.result }}"; // Pass output via YAML
+            const [owner, repo] = forkRepoFullName.split('/');
             const newOwner = "flatironsdevelopment";
 
             const transferResponse = await github.rest.repos.transfer({
@@ -52,7 +53,8 @@ jobs:
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
-            const [owner, repo] = steps.transfer.outputs.result.split('/');
+            const transferredRepoFullName = "${{ steps.transfer.outputs.result }}"; // Pass output via YAML
+            const [owner, repo] = transferredRepoFullName.split('/');
             const username = context.payload.issue.body.trim(); // GitHub username from issue body
 
             await github.rest.repos.addCollaborator({
