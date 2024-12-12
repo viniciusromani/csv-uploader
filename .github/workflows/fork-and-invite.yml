@@ -1,4 +1,4 @@
-name: Fork Repository and Add Collaborator
+name: Fork and Add Collaborator
 
 on:
   issues:
@@ -18,17 +18,23 @@ jobs:
             const baseRepo = context.repo.repo;
             const baseOwner = context.repo.owner;
 
-            // Fork the repository
+            // Use Personal Access Token for authorization
             const forkResponse = await github.rest.repos.createFork({
               owner: baseOwner,
               repo: baseRepo,
+              headers: {
+                authorization: `token ${process.env.PERSONAL_ACCESS_TOKEN}`,
+              },
             });
 
             console.log("Forked Repo Name:", forkResponse.data.full_name);
-            return forkResponse.data.full_name;
+            return forkResponse.data.full_name;  // Returns "username/original-repo"
+        env:
+          PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
 
-      # Add a collaborator
+      # Add the user as a collaborator
       - name: Add User to Forked Repo
+        id: add-collaborator
         uses: actions/github-script@v6
         with:
           script: |
@@ -41,5 +47,8 @@ jobs:
               owner: owner,
               repo: repo,
               username: username,
-              permission: 'push', // Options: pull, push, triage, maintain, admin
+              permission: 'push', // Options: pull, triage, push, maintain, admin
             });
+
+            console.log("User Added as Collaborator:", username);
+            return `https://github.com/${owner}/${repo}`;
