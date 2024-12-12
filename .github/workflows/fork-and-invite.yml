@@ -26,10 +26,9 @@ jobs:
           script: |
             const baseRepo = context.repo.repo;
             const baseOwner = context.repo.owner;
-            console.log("access token length", process.env.PERSONAL_ACCESS_TOKEN.length)
 
-            // Use Personal Access Token for authorization
-            const forkResponse = await github.rest.repos.createFork({
+            // Explicitly use the PERSONAL_ACCESS_TOKEN for authorization
+            const forkResponse = await github.request('POST /repos/{owner}/{repo}/forks', {
               owner: baseOwner,
               repo: baseRepo,
               headers: {
@@ -38,27 +37,6 @@ jobs:
             });
 
             console.log("Forked Repo Name:", forkResponse.data.full_name);
-            return forkResponse.data.full_name;  // Returns "username/original-repo"
+            return forkResponse.data.full_name;
         env:
           PERSONAL_ACCESS_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-
-      # Add the user as a collaborator
-      - name: Add User to Forked Repo
-        id: add-collaborator
-        uses: actions/github-script@v6
-        with:
-          script: |
-            const forkRepoFullName = steps.fork.outputs.result; // Forked repo name
-            const [owner, repo] = forkRepoFullName.split('/');
-            const username = context.payload.issue.body.trim(); // GitHub username from issue body
-
-            // Add the user as a collaborator
-            await github.rest.repos.addCollaborator({
-              owner: owner,
-              repo: repo,
-              username: username,
-              permission: 'push', // Options: pull, triage, push, maintain, admin
-            });
-
-            console.log("User Added as Collaborator:", username);
-            return `https://github.com/${owner}/${repo}`;
