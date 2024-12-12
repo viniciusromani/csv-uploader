@@ -6,8 +6,7 @@ on:
 
 jobs:
   process-issue:
-    permissions:
-      contents: write
+    permissions: write-all
     runs-on: ubuntu-latest
 
     steps:
