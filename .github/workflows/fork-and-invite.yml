@@ -49,7 +49,7 @@ jobs:
             const [owner, repo] = forkRepoFullName.split('/');
             const newOwner = "flatironsdevelopment";
 
-            console.log(`Transferring repository: ${forkRepoFullName} to ${newOwner}`);
+            console.log(`Transferring repository: ${forkRepoFullName} to ${newOwner} under ${owner}`);
 
             const transferResponse = await github.rest.repos.transfer({
               owner: owner,
