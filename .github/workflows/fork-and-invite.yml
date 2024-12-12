@@ -31,10 +31,12 @@ jobs:
       - name: Transfer Repository to Organization
         id: transfer
         uses: actions/github-script@v6
+        env:
+          FORK_REPO: ${{ steps.fork.outputs.result }} # Pass the forked repo name as an env variable
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
-            const forkRepoFullName = "${{ steps.fork.outputs.result }}"; // Pass output via YAML
+            const forkRepoFullName = process.env.FORK_REPO; // Access the passed env variable
             const [owner, repo] = forkRepoFullName.split('/');
             const newOwner = "flatironsdevelopment";
 
@@ -50,10 +52,12 @@ jobs:
       # Add a collaborator (Optional)
       - name: Add User to Transferred Repo
         uses: actions/github-script@v6
+        env:
+          TRANSFERRED_REPO: ${{ steps.transfer.outputs.result }} # Pass the transferred repo name
         with:
           github-token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           script: |
-            const transferredRepoFullName = "${{ steps.transfer.outputs.result }}"; // Pass output via YAML
+            const transferredRepoFullName = process.env.TRANSFERRED_REPO; // Access the passed env variable
             const [owner, repo] = transferredRepoFullName.split('/');
             const username = context.payload.issue.body.trim(); // GitHub username from issue body
 
