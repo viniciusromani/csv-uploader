@@ -4,9 +4,7 @@ Be sure to read **all** of this document carefully, and follow the guidelines wi
 
 ## Context
 
-Implement a full-stack web or mobile application that can upload, process, and store into a database the following CSV filem which contains a list of products.
-
-[CSV File](https://github.com/flatironsdevelopment/rails_node_test/raw/main/data.csv)
+Implement a full-stack web or mobile application that can upload, process, and store into a database the following CSV filem which contains a list of products. An example CSV file is located in data.csv in this repo.
 
 ## Technology Choice
 1. Backend: Ruby on Rails or NestJS
