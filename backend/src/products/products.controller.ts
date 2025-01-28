@@ -16,7 +16,7 @@ import { CurrencyService } from 'src/currencies/currencies.service';
 export class ProductsController {
   constructor(
     private readonly productsService: ProductsService,
-    private readonly currencyService: CurrencyService
+    private readonly currencyService: CurrencyService,
   ) {}
 
   @Post('/csv-import')
@@ -30,8 +30,8 @@ export class ProductsController {
     const totalSize = file.size;
     let processedSize = 0;
 
-    const currencies = await this.currencyService.getCurrencies()
-    console.log(currencies)
+    const currencies = await this.currencyService.getCurrencies();
+    console.log(currencies);
 
     const stream = Readable.from(file.buffer);
     parseStream(stream, { headers: true, delimiter: ';', objectMode: true })
