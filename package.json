@@ -21,6 +21,10 @@
   },
   "homepage": "https://github.com/flatironsdevelopment/rails_node_test_viniciusromani#readme",
   "dependencies": {
+    "@nestjs/axios": "^4.0.0",
+    "@nestjs/cache-manager": "^3.0.0",
+    "axios": "^1.7.9",
+    "cache-manager": "^6.4.0",
     "concurrently": "^9.1.2",
     "husky": "^9.1.7"
   },

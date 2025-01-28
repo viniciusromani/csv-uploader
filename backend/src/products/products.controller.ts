@@ -10,10 +10,14 @@ import { Readable } from 'node:stream';
 import { Response } from 'express';
 import { parseStream } from '@fast-csv/parse';
 import { ProductsService } from './products.service';
+import { CurrencyService } from 'src/currencies/currencies.service';
 
 @Controller('products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly currencyService: CurrencyService
+  ) {}
 
   @Post('/csv-import')
   @UseInterceptors(FileInterceptor('file'))
@@ -25,6 +29,9 @@ export class ProductsController {
 
     const totalSize = file.size;
     let processedSize = 0;
+
+    const currencies = await this.currencyService.getCurrencies()
+    console.log(currencies)
 
     const stream = Readable.from(file.buffer);
     parseStream(stream, { headers: true, delimiter: ';', objectMode: true })
