@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Post,
-  Res,
-  UploadedFile,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Post, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Readable } from 'node:stream';
 import { Response } from 'express';
@@ -21,10 +15,7 @@ export class ProductController {
 
   @Post('/csv-import')
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(
-    @UploadedFile() file: Express.Multer.File,
-    @Res() response: Response,
-  ) {
+  async uploadFile(@UploadedFile() file: Express.Multer.File, @Res() response: Response) {
     console.log(file);
 
     const totalSize = file.size;

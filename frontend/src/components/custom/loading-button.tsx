@@ -6,20 +6,21 @@ type LoadingButtonProps = ButtonProps & {
   loading?: boolean;
 };
 
-const LoadingButton = forwardRef<HTMLButtonElement, LoadingButtonProps>(
-  function LoadingButton({ loading, children, ...props }, ref) {
-    const isLoading = loading ?? false;
+const LoadingButton = forwardRef<HTMLButtonElement, LoadingButtonProps>(function LoadingButton(
+  { loading, children, ...props },
+  ref,
+) {
+  const isLoading = loading ?? false;
 
-    return (
-      <Button ref={ref} disabled={isLoading} {...props}>
-        <>
-          {isLoading ? 'Please wait' : children}
-          {isLoading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
-        </>
-      </Button>
-    );
-  },
-);
+  return (
+    <Button ref={ref} disabled={isLoading} {...props}>
+      <>
+        {isLoading ? 'Please wait' : children}
+        {isLoading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
+      </>
+    </Button>
+  );
+});
 
 LoadingButton.displayName = 'LoadingButton';
 

@@ -33,9 +33,7 @@ export class CurrencyService {
       const currencies = await this.currencyRepository.find({
         where: { is_enabled: true },
       });
-      const { data } = await this.httpService.axiosRef.get(
-        '/v1/currencies/usd.json',
-      );
+      const { data } = await this.httpService.axiosRef.get('/v1/currencies/usd.json');
       const prices = data['usd'];
 
       const dtos = currencies.map((currency) => {
@@ -44,17 +42,7 @@ export class CurrencyService {
       });
 
       // save on cache for next use
-      const endOfDay = new Date(
-        Date.UTC(
-          now.getUTCFullYear(),
-          now.getUTCMonth(),
-          now.getUTCDate(),
-          23,
-          59,
-          59,
-          999,
-        ),
-      );
+      const endOfDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59, 999));
       const ttl = endOfDay.getTime() - now.getTime();
       await this.cacheManager.set(key, dtos, ttl);
       return dtos;

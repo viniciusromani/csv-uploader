@@ -4,10 +4,6 @@ import { DatabaseModule } from './database/database.module';
 import { ProductModule } from './product/product.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
-    DatabaseModule,
-    ProductModule,
-  ],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), DatabaseModule, ProductModule],
 })
 export class AppModule {}

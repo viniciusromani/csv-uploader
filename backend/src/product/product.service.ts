@@ -11,9 +11,7 @@ export class ProductService {
     private productsRepository: Repository<Product>,
   ) {}
 
-  async createMany(
-    createList: CreateProductDTO[],
-  ): Promise<CreateProductDTO[]> {
+  async createMany(createList: CreateProductDTO[]): Promise<CreateProductDTO[]> {
     console.log('im here');
     return [];
   }
