@@ -2,13 +2,13 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
 import { HttpModule } from '@nestjs/axios';
-import { Currencies } from './currencies.entity';
-import { CurrencyService } from './currencies.service';
+import { Currency } from './currency.entity';
+import { CurrencyService } from './currency.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Currencies]),
+    TypeOrmModule.forFeature([Currency]),
     CacheModule.register(),
     HttpModule.registerAsync({
       imports: [ConfigModule],

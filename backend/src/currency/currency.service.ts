@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HttpService } from '@nestjs/axios';
 import { Repository } from 'typeorm';
-import { Currencies } from './currencies.entity';
+import { Currency } from './currency.entity';
 import { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { GetPricesDTO } from './dto/get-prices.dto';
@@ -10,8 +10,8 @@ import { GetPricesDTO } from './dto/get-prices.dto';
 @Injectable()
 export class CurrencyService {
   constructor(
-    @InjectRepository(Currencies)
-    private currencyRepository: Repository<Currencies>,
+    @InjectRepository(Currency)
+    private currencyRepository: Repository<Currency>,
 
     @Inject(CACHE_MANAGER)
     private cacheManager: Cache,

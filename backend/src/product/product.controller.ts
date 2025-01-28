@@ -9,13 +9,13 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { Readable } from 'node:stream';
 import { Response } from 'express';
 import { parseStream } from '@fast-csv/parse';
-import { ProductsService } from './products.service';
-import { CurrencyService } from 'src/currencies/currencies.service';
+import { ProductService } from './product.service';
+import { CurrencyService } from 'src/currency/currency.service';
 
 @Controller('products')
-export class ProductsController {
+export class ProductController {
   constructor(
-    private readonly productsService: ProductsService,
+    private readonly productsService: ProductService,
     private readonly currencyService: CurrencyService,
   ) {}
 

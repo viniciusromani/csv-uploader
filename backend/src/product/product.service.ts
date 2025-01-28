@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateProductDTO } from './dto/create-product.dto';
-import { Products } from './products.entity';
+import { Product } from './product.entity';
 
 @Injectable()
-export class ProductsService {
+export class ProductService {
   constructor(
-    @InjectRepository(Products)
-    private productsRepository: Repository<Products>,
+    @InjectRepository(Product)
+    private productsRepository: Repository<Product>,
   ) {}
 
   async createMany(
