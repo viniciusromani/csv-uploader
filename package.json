@@ -1,0 +1,30 @@
+{
+  "name": "rails_node_test_viniciusromani",
+  "version": "1.0.0",
+  "description": "Be sure to read **all** of this document carefully, and follow the guidelines within.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run start --prefix backend\"",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "husky install"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/flatironsdevelopment/rails_node_test_viniciusromani.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/flatironsdevelopment/rails_node_test_viniciusromani/issues"
+  },
+  "homepage": "https://github.com/flatironsdevelopment/rails_node_test_viniciusromani#readme",
+  "dependencies": {
+    "concurrently": "^9.1.2",
+    "husky": "^9.1.7"
+  },
+  "devDependencies": {
+    "husky": "^8.0.0"
+  }
+}

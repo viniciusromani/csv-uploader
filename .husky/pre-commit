@@ -1,0 +1,1 @@
+npx prettier --write 'frontend/**/*.{js,ts,tsx}' 'backend/**/*.{js,ts}'
