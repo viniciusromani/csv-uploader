@@ -1,4 +1,4 @@
-export class GetPricesDTO {
+export class CreateCurrencyPriceDTO {
   currency_id: number;
   value: number;
 }

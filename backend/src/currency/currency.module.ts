@@ -5,6 +5,7 @@ import { HttpModule } from '@nestjs/axios';
 import { Currency } from './currency.entity';
 import { CurrencyService } from './currency.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CurrencyPriceModule } from 'src/currency-price/currency.price.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         baseURL: configService.get<string>('PRICES_API_URL'),
       }),
     }),
+    CurrencyPriceModule
   ],
   providers: [CurrencyService],
   exports: [CurrencyService],
