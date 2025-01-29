@@ -1,4 +1,4 @@
-import { CurrencyPrice } from 'src/currency-price/currency-price.entity';
+import { ProductPrice } from 'src/product-price/product-price.entity';
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 
 @Entity('currencies')
@@ -6,7 +6,7 @@ export class Currency {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
+  @Column({ unique: true })
   acronym: string;
 
   @Column()
@@ -16,6 +16,6 @@ export class Currency {
   is_enabled: boolean;
 
   // relationships
-  @OneToMany(() => CurrencyPrice, (currencyPrice) => currencyPrice.currency)
-  currency_prices: CurrencyPrice[];
+  @OneToMany(() => ProductPrice, (price) => price.product)
+  prices: ProductPrice[];
 }

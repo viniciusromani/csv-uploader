@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { ProductPrice } from 'src/product-price/product-price.entity';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 
 @Entity('products')
 export class Product {
@@ -8,10 +9,13 @@ export class Product {
   @Column()
   name: string;
 
+  @Column('decimal', { precision: 10, scale: 2 })
+  raw_price: number;
+
   @Column({ nullable: true })
   code: string;
 
-  @Column({ type: 'date' })
+  @Column({ type: 'date', nullable: true })
   expiration: string;
 
   @CreateDateColumn()
@@ -19,4 +23,8 @@ export class Product {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  // relationships
+  @OneToMany(() => ProductPrice, (price) => price.product)
+  prices: ProductPrice[];
 }

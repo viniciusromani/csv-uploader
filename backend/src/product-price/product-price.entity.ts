@@ -1,4 +1,5 @@
 import { Currency } from 'src/currency/currency.entity';
+import { Product } from 'src/product/product.entity';
 import {
   Entity,
   Column,
@@ -9,8 +10,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('currency_prices')
-export class CurrencyPrice {
+@Entity('product_prices')
+export class ProductPrice {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -20,6 +21,13 @@ export class CurrencyPrice {
   @ManyToOne(() => Currency, (currency) => currency.prices)
   @JoinColumn({ name: 'currency_id' })
   currency: Currency;
+
+  @Column()
+  product_id: number;
+
+  @ManyToOne(() => Product, (product) => product.prices)
+  @JoinColumn({ name: 'product_id' })
+  product: Product;
 
   @Column({ type: 'decimal', precision: 20, scale: 10 })
   value: number;

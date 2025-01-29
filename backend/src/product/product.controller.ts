@@ -5,24 +5,29 @@ import { Response } from 'express';
 import { parseStream } from '@fast-csv/parse';
 import { ProductService } from './product.service';
 import { CurrencyService } from 'src/currency/currency.service';
+import { CreateProductDTO } from './dto/create-product.dto';
 
 @Controller('products')
 export class ProductController {
   constructor(
-    private readonly productsService: ProductService,
+    private readonly productService: ProductService,
     private readonly currencyService: CurrencyService,
   ) {}
 
   @Post('/csv-import')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(@UploadedFile() file: Express.Multer.File, @Res() response: Response) {
+    // track progress variables
     const totalSize = file.size;
     let processedSize = 0;
-    let rowCounter = 1; // starting at 1 because of headers
+    // insert control variables
+    let lastProgress = 0;
+    let buffer: CreateProductDTO[] = [];
+    // invalid lines variables
+    let rowCounter = 1;
     let invalidLines: number[] = [];
 
     const currencies = await this.currencyService.getCurrencies();
-    console.log(currencies);
 
     const stream = Readable.from(file.buffer);
     parseStream(stream, { headers: true, delimiter: ';', objectMode: true })
@@ -34,7 +39,7 @@ export class ProductController {
       .on('error', (error) => {
         console.error('[ERROR]', error);
       })
-      .on('data', async (row) => {
+      .on('data', (row) => {
         rowCounter++;
 
         // progress
@@ -45,16 +50,25 @@ export class ProductController {
         response.write(`${progress}\n`);
 
         // saving on db
+        buffer.push(row);
+        if (progress >= lastProgress + 20) {
+          lastProgress = progress;
+
+          if (buffer.length > 0) {
+            this.productService.insertMany(buffer, currencies);
+            buffer.length = 0;
+          }
+        }
       })
       .on('data-invalid', (row) => {
         rowCounter++;
         invalidLines.push(rowCounter);
         console.warn('invalid row', row);
       })
-      .on('end', async (rowCount: number) => {
-        console.log(`Parsed ${rowCount} rows`);
+      .on('end', (rowCount: number) => {
+        this.productService.insertMany(buffer, currencies);
+        buffer.length = 0;
 
-        // writing progress; totalcount; invalidlines
         response.write('100\n');
         response.write(`total:${rowCount}\n`);
         response.write(`invalid:${JSON.stringify(invalidLines)}\n`);

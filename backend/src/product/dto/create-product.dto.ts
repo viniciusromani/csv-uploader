@@ -1,5 +1,5 @@
-export interface CreateProductDTO {
+export class CreateProductDTO {
   name: string;
-  code: string | undefined;
+  price: string;
   expiration: string;
 }
