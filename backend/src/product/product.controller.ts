@@ -6,6 +6,7 @@ import { parseStream } from '@fast-csv/parse';
 import { ProductService } from './product.service';
 import { CurrencyService } from 'src/currency/currency.service';
 import { CreateProductDTO } from './dto/create-product.dto';
+import { Product } from './product.entity';
 
 @Controller('products')
 export class ProductController {
@@ -22,10 +23,11 @@ export class ProductController {
     let processedSize = 0;
     // insert control variables
     let lastProgress = 0;
-    let buffer: CreateProductDTO[] = [];
+    const buffer: CreateProductDTO[] = [];
+    const insertPromises: Promise<Product[]>[] = [];
     // invalid lines variables
     let rowCounter = 1;
-    let invalidLines: number[] = [];
+    const invalidLines: number[] = [];
 
     const currencies = await this.currencyService.getCurrencies();
 
@@ -55,7 +57,7 @@ export class ProductController {
           lastProgress = progress;
 
           if (buffer.length > 0) {
-            this.productService.insertMany(buffer, currencies);
+            insertPromises.push(this.productService.insertMany([...buffer], currencies));
             buffer.length = 0;
           }
         }
@@ -65,8 +67,9 @@ export class ProductController {
         invalidLines.push(rowCounter);
         console.warn('invalid row', row);
       })
-      .on('end', (rowCount: number) => {
-        this.productService.insertMany(buffer, currencies);
+      .on('end', async (rowCount: number) => {
+        insertPromises.push(this.productService.insertMany([...buffer], currencies));
+        await Promise.all(insertPromises);
         buffer.length = 0;
 
         response.write('100\n');
