@@ -18,7 +18,7 @@ import { CurrencyPriceModule } from 'src/currency-price/currency.price.module';
         baseURL: configService.get<string>('PRICES_API_URL'),
       }),
     }),
-    CurrencyPriceModule
+    CurrencyPriceModule,
   ],
   providers: [CurrencyService],
   exports: [CurrencyService],

@@ -6,6 +6,6 @@ import { CreateCurrencyPriceDTO } from './dto/create-currency-price.dto';
 @Module({
   imports: [TypeOrmModule.forFeature([CurrencyPrice])],
   providers: [CreateCurrencyPriceDTO],
-  exports: [CreateCurrencyPriceDTO]
+  exports: [CreateCurrencyPriceDTO],
 })
 export class CurrencyPriceModule {}
