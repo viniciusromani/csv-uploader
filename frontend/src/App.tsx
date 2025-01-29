@@ -73,7 +73,7 @@ function App() {
   };
 
   return (
-    <div className="container mx-auto my-8 space-y-8 flex-1">
+    <div className="container mx-auto my-8 space-y-8 flex-1 border-2 border-solid p-8 rounded-xl">
       <h1>Upload CSV</h1>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
