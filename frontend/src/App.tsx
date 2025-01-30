@@ -1,9 +1,18 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { TriangleAlert } from 'lucide-react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Input, Progress } from '@/components/shadcn';
+import {
+  AlertDialogCancel,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  Button,
+  Input,
+  Progress,
+} from '@/components/shadcn';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/shadcn';
 import {
   Dialog,
@@ -14,10 +23,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from './components/shadcn';
+} from '@/components/shadcn';
+import { AlertDialog, AlertDialogContent } from '@/components/shadcn';
+import { LoadingButton } from '@/components/custom';
 
 const schema = z.object({
-  file: z.instanceof(FileList).refine((file) => file?.length == 1, 'File is required.'),
+  file: z
+    .custom<FileList>((val) => val instanceof FileList, 'File is required')
+    .refine((file) => file?.length === 1, 'File is required'),
 });
 type FormSchema = z.infer<typeof schema>;
 
@@ -25,50 +38,60 @@ function App() {
   const [progress, setProgress] = useState(0);
   const [totalLines, setTotalLines] = useState<number>(0);
   const [invalidLines, setInvalidLines] = useState<number[]>([]);
+  const [error, setError] = useState<string>('');
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(schema),
   });
+  const reset = () => {
+    setProgress(0);
+    setInvalidLines([]);
+    form.reset();
+    if (inputRef.current) {
+      inputRef.current.value = '';
+    }
+  };
   const onSubmit = async (data: FormSchema) => {
     const formData = new FormData();
     formData.append('file', data.file[0]);
 
-    try {
-      const response = await fetch(`${process.env.API_URL}/products/csv-import`, {
-        method: 'POST',
-        body: formData,
+    const response = await fetch(`${process.env.API_URL}/products/csv-import`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    const reader = response.body?.getReader();
+    if (!reader) return;
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      let lines = buffer.split('\n');
+      buffer = lines.pop()!;
+
+      lines.forEach((line) => {
+        if (!line) return;
+
+        if (line.startsWith('error:')) {
+          const error = JSON.parse(line.split('error:')[1]);
+          console.log(error.message);
+          setError(error.message);
+        } else if (line.startsWith('invalid:')) {
+          const invalid = JSON.parse(line.split('invalid:')[1]);
+          setInvalidLines(invalid);
+        } else if (line.startsWith('total:')) {
+          const total = line.split('total:')[1];
+          setTotalLines(parseInt(total));
+        } else {
+          setProgress(parseInt(line));
+        }
       });
-
-      const reader = response.body?.getReader();
-      if (!reader) return;
-
-      const decoder = new TextDecoder();
-      let buffer = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-        let lines = buffer.split('\n');
-        buffer = lines.pop()!;
-
-        lines.forEach((line) => {
-          if (!line) return;
-
-          if (line.startsWith('invalid:')) {
-            const invalid = JSON.parse(line.split('invalid:')[1]);
-            setInvalidLines(invalid);
-          } else if (line.startsWith('total:')) {
-            const total = line.split('total:')[1];
-            setTotalLines(parseInt(total));
-          } else {
-            setProgress(parseInt(line));
-          }
-        });
-      }
-    } catch (error) {
-      console.error('Error uploading file:', error);
     }
   };
 
@@ -85,7 +108,15 @@ function App() {
                 <FormItem>
                   <FormLabel>Choose CSV</FormLabel>
                   <FormControl>
-                    <Input type="file" accept=".csv" onChange={(e) => field.onChange(e.target.files)} ref={field.ref} />
+                    <Input
+                      type="file"
+                      accept=".csv"
+                      onChange={(e) => field.onChange(e.target.files)}
+                      ref={(el) => {
+                        field.ref;
+                        inputRef.current = el;
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -95,7 +126,9 @@ function App() {
           <Progress className="mt-2" value={progress} />
           <div className="text-right text-sm">{progress}%</div>
           <div className="mt-4 space-y-3">
-            <Button type="submit">Submit</Button>
+            <LoadingButton type="submit" loading={progress > 0 && progress < 100}>
+              Submit
+            </LoadingButton>
             {progress == 100 && totalLines > 0 && (
               <div className="flex flex-col text-sm">
                 <span>Total Lines: {totalLines}</span>
@@ -110,6 +143,9 @@ function App() {
                   <InvalidLinesDialog invalidLines={invalidLines} />
                 </div>
               </div>
+            )}
+            {error.length > 0 && (
+              <ErrorDialog open={true} message={error} setOpen={(_) => setError('')} onClose={reset} />
             )}
           </div>
         </form>
@@ -149,6 +185,32 @@ function InvalidLinesDialog({ invalidLines }: { invalidLines: number[] }) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function ErrorDialog({
+  open,
+  setOpen,
+  message,
+  onClose,
+}: {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  message: string;
+  onClose: () => void;
+}) {
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Error</AlertDialogTitle>
+          <AlertDialogDescription>{message}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 

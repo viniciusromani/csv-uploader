@@ -7,6 +7,7 @@ import { ProductService } from './product.service';
 import { CurrencyService } from 'src/currency/currency.service';
 import { CreateProductDTO } from './dto/create-product.dto';
 import { Product } from './product.entity';
+import { GetPricesDTO } from 'src/currency/dto/get-prices.dto';
 
 @Controller('products')
 export class ProductController {
@@ -24,7 +25,7 @@ export class ProductController {
     // insert control variables
     let lastProgress = 0;
     const buffer: CreateProductDTO[] = [];
-    const insertPromises: Promise<Product[]>[] = [];
+    const insertPromises: Promise<Product[] | void>[] = [];
     // invalid lines variables
     let rowCounter = 1;
     const invalidLines: number[] = [];
@@ -57,7 +58,11 @@ export class ProductController {
           lastProgress = progress;
 
           if (buffer.length > 0) {
-            insertPromises.push(this.productService.insertMany([...buffer], currencies));
+            insertPromises.push(
+              this.productService
+                .insertMany(buffer, currencies)
+                .catch((error) => this.writeResponseError(response, error)),
+            );
             buffer.length = 0;
           }
         }
@@ -68,8 +73,17 @@ export class ProductController {
         console.warn('invalid row', row);
       })
       .on('end', async (rowCount: number) => {
-        insertPromises.push(this.productService.insertMany([...buffer], currencies));
-        await Promise.all(insertPromises);
+        insertPromises.push(
+          this.productService.insertMany(buffer, currencies).catch((error) => this.writeResponseError(response, error)),
+        );
+
+        try {
+          await Promise.all(insertPromises);
+        } catch (error) {
+          this.writeResponseError(response, error);
+          response.end();
+          return;
+        }
         buffer.length = 0;
 
         response.write('100\n');
@@ -77,5 +91,14 @@ export class ProductController {
         response.write(`invalid:${JSON.stringify(invalidLines)}\n`);
         response.end();
       });
+  }
+
+  private writeResponseError(response: Response, error: any) {
+    response.write(
+      `error:${JSON.stringify({
+        message: 'Error inserting records on database',
+        error,
+      })}`,
+    );
   }
 }
