@@ -1,14 +1,21 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { Product } from './product.entity';
 import { CreateProductDTO } from './dto/create-product.dto';
 import { GetPricesDTO } from 'src/currency/dto/get-prices.dto';
 import { ProductPrice } from 'src/product-price/product-price.entity';
 import { CreateProductPriceDTO } from 'src/product-price/dto/create-product-price.dto';
+import { GetProductsQueryDTO } from './dto/get-products-query.dto';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class ProductService {
-  constructor(private readonly dataSource: DataSource) {}
+  constructor(
+    private readonly dataSource: DataSource,
+
+    @InjectRepository(Product)
+    private productRepository: Repository<Product>,
+  ) {}
 
   private extractNameAndCode(text: string): [string, string | undefined] {
     const parts = text.split('#');
@@ -86,5 +93,59 @@ export class ProductService {
     } catch (error) {
       throw error;
     }
+  }
+
+  async findAll(query: GetProductsQueryDTO): Promise<GetProductsResponseDTO[]> {
+    const queryBuilder = this.productRepository.createQueryBuilder('products');
+    queryBuilder
+      .innerJoinAndSelect('products.prices', 'product_prices')
+      .innerJoinAndSelect('product_prices.currency', 'currency');
+
+    if (query.filter) {
+      if (query.filter.name) {
+        const name = query.filter.name;
+        queryBuilder.andWhere('products.name LIKE :name', { name: `%${name}%` });
+      }
+      if (query.filter.price) {
+        const price = query.filter.price;
+        queryBuilder.andWhere('products.raw_price >= :price', { price: `%${price}%` });
+      }
+      if (query.filter.expiration) {
+        const from = query.filter.expiration.from;
+        const to = query.filter.expiration.to;
+        queryBuilder.andWhere('products.expiration BETWEEN :from AND :to', { from, to });
+      }
+    }
+    if (query.order) {
+      const field = query.order.field;
+      const sort = query.order.sort;
+      if (field) {
+        switch (field) {
+          case 'name':
+            queryBuilder.orderBy('products.name', sort);
+            break;
+          case 'price':
+            queryBuilder.orderBy('products.raw_price', sort);
+            break;
+          case 'expiration':
+            queryBuilder.orderBy('products.expiration', sort);
+            queryBuilder.andWhere('products.expiration IS NOT NULL');
+            break;
+        }
+      }
+    }
+
+    const products = await queryBuilder.getMany();
+
+    return products.map((product) => {
+      const prices = {};
+      product.prices.forEach((price) => {
+        const acronym = price.currency.acronym;
+        prices[acronym] = price.value;
+      });
+
+      const { raw_price, ...rest } = product;
+      return { ...rest, prices };
+    });
   }
 }

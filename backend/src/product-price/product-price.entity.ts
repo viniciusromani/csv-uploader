@@ -29,7 +29,15 @@ export class ProductPrice {
   @JoinColumn({ name: 'product_id' })
   product: Product;
 
-  @Column({ type: 'decimal', precision: 20, scale: 10 })
+  @Column({
+    type: 'decimal',
+    precision: 20,
+    scale: 10,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value),
+    },
+  })
   value: number;
 
   @CreateDateColumn()

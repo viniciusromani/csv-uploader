@@ -1,4 +1,4 @@
-import { Controller, Post, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Post, Query, Res, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Readable } from 'node:stream';
 import { Response } from 'express';
@@ -8,6 +8,8 @@ import { CurrencyService } from 'src/currency/currency.service';
 import { CreateProductDTO } from './dto/create-product.dto';
 import { Product } from './product.entity';
 import { GetPricesDTO } from 'src/currency/dto/get-prices.dto';
+import { GetProductsQueryDTO } from './dto/get-products-query.dto';
+import { ParseGetProductsQueryParamsPipe } from 'src/utils/parse-qp-get-products';
 
 @Controller('products')
 export class ProductController {
@@ -100,5 +102,12 @@ export class ProductController {
         error,
       })}`,
     );
+  }
+
+  @Get()
+  async findAll(
+    @Query(new ParseGetProductsQueryParamsPipe()) query: GetProductsQueryDTO,
+  ): Promise<GetProductsResponseDTO[]> {
+    return this.productService.findAll(query);
   }
 }
