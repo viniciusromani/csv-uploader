@@ -5,6 +5,7 @@ class GetProductPricesDTO {
 class GetProductsResponseDTO {
   id: number;
   name: string;
+  raw_price: number;
   code?: string;
   expiration?: string;
   created_at: Date;

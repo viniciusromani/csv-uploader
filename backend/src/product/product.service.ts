@@ -108,7 +108,7 @@ export class ProductService {
       }
       if (query.filter.price) {
         const price = query.filter.price;
-        queryBuilder.andWhere('products.raw_price >= :price', { price: `%${price}%` });
+        queryBuilder.andWhere('products.raw_price >= :price', { price });
       }
       if (query.filter.expiration) {
         const from = query.filter.expiration.from;
@@ -144,8 +144,7 @@ export class ProductService {
         prices[acronym] = price.value;
       });
 
-      const { raw_price, ...rest } = product;
-      return { ...rest, prices };
+      return { ...product, prices };
     });
   }
 }

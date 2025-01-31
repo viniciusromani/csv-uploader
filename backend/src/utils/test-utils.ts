@@ -5,6 +5,7 @@ import { DataSource, SelectQueryBuilder } from 'typeorm';
 const mockRepository = {
   find: jest.fn(),
   findOne: jest.fn(),
+  create: jest.fn(),
   save: jest.fn(),
   delete: jest.fn(),
   createQueryBuilder: jest.fn(),

@@ -51,6 +51,7 @@ describe('ProductController', () => {
           expiration: '1/11/2023',
           created_at: new Date(),
           updated_at: new Date(),
+          raw_price: 115.55,
           prices: { usd: 115.55 },
         },
       ];
