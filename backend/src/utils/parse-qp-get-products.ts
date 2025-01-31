@@ -28,7 +28,8 @@ export class ParseGetProductsQueryParamsPipe implements PipeTransform {
       const from = value['filter[expiration][from]'];
       const to = value['filter[expiration][to]'];
       value.filter.expiration = { from, to };
-      delete value['filter[expiration]'];
+      delete value['filter[expiration][from]'];
+      delete value['filter[expiration][to]'];
     }
     if (value['order[field]']) {
       value.order.field = value['order[field]'];

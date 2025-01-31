@@ -102,8 +102,8 @@ describe('ProductService', () => {
           name: 'Calypso - Lemonade',
           code: '4026987913289674',
           expiration: '1/11/2023',
-          created_at: new Date(),
-          updated_at: new Date(),
+          created_at: '2025-01-31T10:08:09.141Z',
+          updated_at: '2025-01-31T10:08:09.141Z',
           prices: [
             {
               currency: { acronym: 'usd' },
@@ -116,8 +116,8 @@ describe('ProductService', () => {
           name: 'Venison - Ground',
           code: '5610875542054651',
           expiration: '3/5/2023',
-          created_at: new Date(),
-          updated_at: new Date(),
+          created_at: '2025-01-31T10:08:09.141Z',
+          updated_at: '2025-01-31T10:08:09.141Z',
           prices: [
             {
               currency: { acronym: 'usd' },
@@ -142,8 +142,8 @@ describe('ProductService', () => {
           name: 'Calypso - Lemonade',
           code: '4026987913289674',
           expiration: '1/11/2023',
-          created_at: new Date(),
-          updated_at: new Date(),
+          created_at: '2025-01-31T10:08:09.141Z',
+          updated_at: '2025-01-31T10:08:09.141Z',
           prices: { usd: 115.55 },
         },
         {
@@ -151,8 +151,8 @@ describe('ProductService', () => {
           name: 'Venison - Ground',
           code: '5610875542054651',
           expiration: '3/5/2023',
-          created_at: new Date(),
-          updated_at: new Date(),
+          created_at: '2025-01-31T10:08:09.141Z',
+          updated_at: '2025-01-31T10:08:09.141Z',
           prices: { usd: 4.91 },
         },
       ];
