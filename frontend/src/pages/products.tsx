@@ -81,12 +81,9 @@ function SkeletonTable() {
   return (
     <div className="space-y-4">
       <Skeleton className="h-12" />
-      <Skeleton className="h-8" />
-      <Skeleton className="h-8" />
-      <Skeleton className="h-8" />
-      <Skeleton className="h-8" />
-      <Skeleton className="h-8" />
-      <Skeleton className="h-8" />
+      {[...Array(lines).keys()].map((_) => (
+        <Skeleton className="h-8" />
+      ))}
     </div>
   );
 }
