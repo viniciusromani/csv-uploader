@@ -106,7 +106,7 @@ describe('ProductService', () => {
           updated_at: '2025-01-31T10:08:09.141Z',
           prices: [
             {
-              currency: { acronym: 'usd' },
+              currency: { acronym: 'usd', prefix: '$' },
               value: 115.55,
             },
           ],
@@ -120,7 +120,7 @@ describe('ProductService', () => {
           updated_at: '2025-01-31T10:08:09.141Z',
           prices: [
             {
-              currency: { acronym: 'usd' },
+              currency: { acronym: 'usd', prefix: '$' },
               value: 4.91,
             },
           ],
@@ -144,7 +144,13 @@ describe('ProductService', () => {
           expiration: '1/11/2023',
           created_at: '2025-01-31T10:08:09.141Z',
           updated_at: '2025-01-31T10:08:09.141Z',
-          prices: { usd: 115.55 },
+          prices: [
+            {
+              acronym: 'usd',
+              value: 115.55,
+              prefix: '$',
+            },
+          ],
         },
         {
           id: 10,
@@ -153,7 +159,13 @@ describe('ProductService', () => {
           expiration: '3/5/2023',
           created_at: '2025-01-31T10:08:09.141Z',
           updated_at: '2025-01-31T10:08:09.141Z',
-          prices: { usd: 4.91 },
+          prices: [
+            {
+              acronym: 'usd',
+              value: 4.91,
+              prefix: '$',
+            },
+          ],
         },
       ];
       const result = await productService.findAll({});

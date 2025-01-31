@@ -1,5 +1,7 @@
 class GetProductPricesDTO {
-  [acronym: string]: number;
+  acronym: string;
+  value: number;
+  prefix: string;
 }
 
 class GetProductsResponseDTO {
@@ -10,5 +12,5 @@ class GetProductsResponseDTO {
   expiration?: string;
   created_at: Date;
   updated_at: Date;
-  prices: GetProductPricesDTO;
+  prices: GetProductPricesDTO[];
 }

@@ -52,7 +52,7 @@ describe('ProductController', () => {
           created_at: new Date(),
           updated_at: new Date(),
           raw_price: 115.55,
-          prices: { usd: 115.55 },
+          prices: [{ acronym: 'usd', value: 115.55, prefix: '$' }],
         },
       ];
 

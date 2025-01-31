@@ -138,10 +138,14 @@ export class ProductService {
     const products = await queryBuilder.getMany();
 
     return products.map((product) => {
-      const prices = {};
+      const prices: GetProductPricesDTO[] = [];
       product.prices.forEach((price) => {
         const acronym = price.currency.acronym;
-        prices[acronym] = price.value;
+        prices.push({
+          acronym,
+          value: price.value,
+          prefix: price.currency.prefix,
+        });
       });
 
       return { ...product, prices };
