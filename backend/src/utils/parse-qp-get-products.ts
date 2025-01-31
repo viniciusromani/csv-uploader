@@ -1,5 +1,5 @@
 import { PipeTransform, Injectable, ArgumentMetadata, BadRequestException } from '@nestjs/common';
-import { GetProductsQueryDTO } from 'src/product/dto/get-products-query.dto';
+import { GetProductsQueryDTO } from '../product/dto/get-products-query.dto';
 
 /**
  * This was created because I could not parse nested objects

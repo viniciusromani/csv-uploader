@@ -3,8 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from './product.entity';
 import { ProductService } from './product.service';
 import { ProductController } from './product.controller';
-import { CurrencyModule } from 'src/currency/currency.module';
-import { ProductPriceModule } from 'src/product-price/product-price.module';
+import { CurrencyModule } from '../currency/currency.module';
+import { ProductPriceModule } from '../product-price/product-price.module';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Product]), CurrencyModule, ProductPriceModule],

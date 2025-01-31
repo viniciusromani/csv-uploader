@@ -1,4 +1,4 @@
-import { Currency } from 'src/currency/currency.entity';
+import { Currency } from '../currency/currency.entity';
 import {
   Entity,
   Column,

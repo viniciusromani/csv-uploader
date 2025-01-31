@@ -1,4 +1,4 @@
-import { ProductPrice } from 'src/product-price/product-price.entity';
+import { ProductPrice } from '../product-price/product-price.entity';
 import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 
 @Entity('products')

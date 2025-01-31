@@ -6,7 +6,7 @@ import { Currency } from './currency.entity';
 import { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { GetPricesDTO } from './dto/get-prices.dto';
-import { CurrencyPrice } from 'src/currency-price/currency-price.entity';
+import { CurrencyPrice } from '../currency-price/currency-price.entity';
 
 @Injectable()
 export class CurrencyService {

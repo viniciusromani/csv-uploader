@@ -4,12 +4,11 @@ import { Readable } from 'node:stream';
 import { Response } from 'express';
 import { parseStream } from '@fast-csv/parse';
 import { ProductService } from './product.service';
-import { CurrencyService } from 'src/currency/currency.service';
+import { CurrencyService } from '../currency/currency.service';
 import { CreateProductDTO } from './dto/create-product.dto';
 import { Product } from './product.entity';
-import { GetPricesDTO } from 'src/currency/dto/get-prices.dto';
 import { GetProductsQueryDTO } from './dto/get-products-query.dto';
-import { ParseGetProductsQueryParamsPipe } from 'src/utils/parse-qp-get-products';
+import { ParseGetProductsQueryParamsPipe } from '../utils/parse-qp-get-products';
 
 @Controller('products')
 export class ProductController {

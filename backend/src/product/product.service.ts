@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { Product } from './product.entity';
 import { CreateProductDTO } from './dto/create-product.dto';
-import { GetPricesDTO } from 'src/currency/dto/get-prices.dto';
-import { ProductPrice } from 'src/product-price/product-price.entity';
-import { CreateProductPriceDTO } from 'src/product-price/dto/create-product-price.dto';
+import { GetPricesDTO } from '../currency/dto/get-prices.dto';
+import { ProductPrice } from '../product-price/product-price.entity';
+import { CreateProductPriceDTO } from '../product-price/dto/create-product-price.dto';
 import { GetProductsQueryDTO } from './dto/get-products-query.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 

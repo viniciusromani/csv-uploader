@@ -1,5 +1,5 @@
-import { Currency } from 'src/currency/currency.entity';
-import { Product } from 'src/product/product.entity';
+import { Currency } from '../currency/currency.entity';
+import { Product } from '../product/product.entity';
 import {
   Entity,
   Column,
