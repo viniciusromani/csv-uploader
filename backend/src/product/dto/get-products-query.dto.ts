@@ -1,4 +1,4 @@
-import { IsIn, IsNumber, IsOptional, IsString, Matches, ValidateNested } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString, Matches, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 /**
@@ -33,15 +33,22 @@ class FilterDTO {
   expiration?: ExpirationDTO;
 }
 
+export enum OrderFieldEnum {
+  name = 'name',
+  price = 'price',
+  expiration = 'expiration'
+}
+export enum OrderSortEnum {
+  asc = 'ASC',
+  desc = 'DESC'
+}
 class OrderDTO {
   @IsOptional()
-  @IsString()
-  @IsIn(['name', 'price'])
+  @IsEnum(OrderFieldEnum)
   field?: string;
 
   @IsOptional()
-  @IsString()
-  @IsIn(['ASC', 'DESC'])
+  @IsEnum(OrderSortEnum)
   sort?: 'ASC' | 'DESC' = 'ASC';
 }
 

@@ -8,8 +8,16 @@ export class Product {
 
   @Column()
   name: string;
-
-  @Column('decimal', { precision: 20, scale: 10 })
+  
+  @Column({
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    transformer: {
+      to: (value: number) => value,
+      from: (value: string) => parseFloat(value),
+    },
+  })
   raw_price: number;
 
   @Column({ nullable: true })
