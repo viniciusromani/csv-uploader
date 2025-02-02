@@ -36,11 +36,11 @@ class FilterDTO {
 export enum OrderFieldEnum {
   name = 'name',
   price = 'price',
-  expiration = 'expiration'
+  expiration = 'expiration',
 }
 export enum OrderSortEnum {
   asc = 'ASC',
-  desc = 'DESC'
+  desc = 'DESC',
 }
 class OrderDTO {
   @IsOptional()

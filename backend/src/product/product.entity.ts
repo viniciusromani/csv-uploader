@@ -8,7 +8,7 @@ export class Product {
 
   @Column()
   name: string;
-  
+
   @Column({
     type: 'decimal',
     precision: 10,
