@@ -26,7 +26,7 @@ export class ProductService {
   ) {}
 
   private readonly logger = new Logger(ProductService.name);
-  
+
   async findAll(query: GetProductsQueryDTO): Promise<GetProductsResponseDTO[]> {
     const queryBuilder = this.productRepository.createQueryBuilder('products');
     queryBuilder
@@ -196,8 +196,9 @@ export class ProductService {
         buffer.push(row);
         if (buffer.length >= BUFFER_LIMIT) {
           insertPromises.push(
-            this.insertMany(buffer.splice(0, BUFFER_LIMIT), currencies)
-              .catch((error) => this.writeResponseError(response, error))
+            this.insertMany(buffer.splice(0, BUFFER_LIMIT), currencies).catch((error) =>
+              this.writeResponseError(response, error),
+            ),
           );
         }
       })
