@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { Product } from './product.entity';
 import { CreateProductDTO } from './dto/create-product.dto';
@@ -25,6 +25,8 @@ export class ProductService {
     private readonly currencyService: CurrencyService,
   ) {}
 
+  private readonly logger = new Logger(ProductService.name);
+  
   async findAll(query: GetProductsQueryDTO): Promise<GetProductsResponseDTO[]> {
     const queryBuilder = this.productRepository.createQueryBuilder('products');
     queryBuilder
@@ -161,8 +163,8 @@ export class ProductService {
     const totalSize = file.size;
     let processedSize = 0;
     // insert control variables
-    let lastProgress = 0;
     const buffer: CreateProductDTO[] = [];
+    const BUFFER_LIMIT = 500;
     const insertPromises: Promise<Product[] | void>[] = [];
     // invalid lines variables
     let rowCounter = 1;
@@ -170,6 +172,7 @@ export class ProductService {
 
     const currencies = await this.currencyService.getCurrencies();
     const stream = this.getStream(file.buffer);
+
     parseStream(stream, { headers: true, delimiter: ';', objectMode: true })
       .validate((data) => {
         if (!data.name || data.name.length == 0) return false;
@@ -177,7 +180,7 @@ export class ProductService {
         return true;
       })
       .on('error', (error) => {
-        console.error('[ERROR]', error);
+        this.logger.error('[ERROR]', error);
       })
       .on('data', (row) => {
         rowCounter++;
@@ -191,21 +194,17 @@ export class ProductService {
 
         // saving on db
         buffer.push(row);
-        if (progress >= lastProgress + 20) {
-          lastProgress = progress;
-
-          if (buffer.length > 0) {
-            insertPromises.push(
-              this.insertMany(buffer, currencies).catch((error) => this.writeResponseError(response, error)),
-            );
-            buffer.length = 0;
-          }
+        if (buffer.length >= BUFFER_LIMIT) {
+          insertPromises.push(
+            this.insertMany(buffer.splice(0, BUFFER_LIMIT), currencies)
+              .catch((error) => this.writeResponseError(response, error))
+          );
         }
       })
       .on('data-invalid', (row) => {
         rowCounter++;
         invalidLines.push(rowCounter);
-        console.warn('invalid row', row);
+        this.logger.error('[INVALID ROW]', row);
       })
       .on('end', async (rowCount: number) => {
         insertPromises.push(
@@ -215,6 +214,7 @@ export class ProductService {
         try {
           await Promise.all(insertPromises);
         } catch (error) {
+          this.logger.error('[ERROR] Inserting promises', error);
           this.writeResponseError(response, error);
           response.end();
           return;

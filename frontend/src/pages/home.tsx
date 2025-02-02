@@ -159,7 +159,7 @@ function InvalidLinesDialog({ invalidLines }: { invalidLines: number[] }) {
           Click here to check
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md overflow-y-scroll max-h-screen">
         <DialogHeader>
           <DialogTitle>Invalid Lines</DialogTitle>
           <DialogDescription>A line is only valid if it has a name and a price.</DialogDescription>
