@@ -1,4 +1,4 @@
-import { IsIn, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsIn, IsNumber, IsOptional, IsString, Matches, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 /**
@@ -7,9 +7,15 @@ import { Type } from 'class-transformer';
  */
 class ExpirationDTO {
   @IsString()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: 'Date must be in YYYY-MM-DD format',
+  })
   from: string;
 
   @IsString()
+  @Matches(/^\d{4}-\d{2}-\d{2}$/, {
+    message: 'Date must be in YYYY-MM-DD format',
+  })
   to: string;
 }
 

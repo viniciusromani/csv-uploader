@@ -20,12 +20,12 @@ Files are processed with streams which makes it work with any size of data. Ther
 
 ### Database
 
-![](assets/db-schema.png)
+![Database Schema](assets/db-schema.png)
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-The following instructions get you running a local copy of the application.
+The following instructions get you a local running copy of the application.
 
 ### Prerequisites
 
@@ -38,7 +38,7 @@ The following instructions get you running a local copy of the application.
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/github_username/repo_name.git
+   git clone https://github.com/flatironsdevelopment/rails_node_test_viniciusromani.git
    ```
 2. Install dependencies
    ```sh
@@ -47,7 +47,7 @@ The following instructions get you running a local copy of the application.
 3. Create a `.env` file on project's root folder with the following variables:
    ```sh
     DATABASE_HOST=<your_database_host>
-    DATABASE_PORT=<your_database_host>
+    DATABASE_PORT=<your_database_port>
     DATABASE_USER=<your_database_user>
     DATABASE_PASSWORD=<your_database_password>
     DATABASE_NAME=<your_database_name>
@@ -74,6 +74,7 @@ Obs. To get currency prices, I usually use this [API](https://github.com/fawazah
 <!-- ROADMAP -->
 ## Roadmap
 
+- [ ] Create migrations to apply database changes (currently using `syncronize: true` which is not recommended for production environment)
 - [ ] Fix query-param parse on get endpoint using `class-validator` and `class-transformer` library
 - [ ] Allow database batch size to be defined on the fly
 - [ ] Create unit tests for `currency-service`

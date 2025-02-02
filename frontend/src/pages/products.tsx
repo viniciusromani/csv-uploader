@@ -11,20 +11,37 @@ function Products() {
   const [products, setProducts] = useState<ProductResponse[]>([]);
 
   useEffect(() => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const result = await fetch(`${process.env.API_URL}/products`);
+        const result = await fetch(`${process.env.API_URL}/products`, {
+          signal: controller.signal,
+          headers: {
+            Accept: 'application/json',
+          },
+        });
+        if (!result.ok) {
+          throw new Error(`HTTP error! status: ${result.status}`);
+        }
         const body = await result.json();
         setProducts(body);
       } catch (error) {
-        if (error instanceof Error) setError(error.message);
+        if (error instanceof Error) {
+          setError(error.name === 'AbortError' ? 'Request timeout' : error.message);
+        }
       } finally {
         setLoading(false);
       }
     };
 
     fetchProducts();
+    return () => {
+      clearTimeout(timeout);
+      controller.abort();
+    };
   }, []);
 
   return (
@@ -81,8 +98,8 @@ function SkeletonTable() {
   return (
     <div className="space-y-4">
       <Skeleton className="h-12" />
-      {[...Array(lines).keys()].map((_) => (
-        <Skeleton className="h-8" />
+      {[...Array(lines).keys()].map((index) => (
+        <Skeleton key={`skeleton-${index}`} className="h-8" />
       ))}
     </div>
   );

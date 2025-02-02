@@ -47,7 +47,7 @@ export class CurrencyService {
 
         // save prices
         const createdPrices = currencyPricesRepository.create(dtos);
-        const savedPrices = currencyPricesRepository.save(createdPrices);
+        const savedPrices = await currencyPricesRepository.save(createdPrices);
 
         // save on cache for next use
         const endOfDay = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 23, 59, 59, 999));

@@ -14,31 +14,33 @@ export class ParseGetProductsQueryParamsPipe implements PipeTransform {
 
     if (value['filter[name]']) {
       value.filter.name = value['filter[name]'];
-      delete value['filter[name]'];
+      value['filter[name]'] = undefined;
     }
     if (value['filter[price]']) {
       const price = parseFloat(value['filter[price]']);
-      if (isNaN(price)) {
+      if (Number.isNaN(price)) {
         throw new BadRequestException('Invalid price value. Must be a number.');
       }
       value.filter.price = parseFloat(value['filter[price]']);
-      delete value['filter[price]'];
+      value['filter[price]'] = undefined;
     }
-    if (value['filter[expiration][from]'] && value['filter[expiration][from]']) {
+    if (value['filter[expiration][from]'] && value['filter[expiration][to]']) {
       const from = value['filter[expiration][from]'];
       const to = value['filter[expiration][to]'];
+
       value.filter.expiration = { from, to };
-      delete value['filter[expiration][from]'];
-      delete value['filter[expiration][to]'];
+
+      value['filter[expiration][from]'] = undefined;
+      value['filter[expiration][to]'] = undefined;
     }
     if (value['order[field]']) {
       value.order.field = value['order[field]'];
       value.order.sort = 'ASC';
-      delete value['order[field]'];
+      value['order[field]'] = undefined;
     }
     if (value['order[sort]']) {
       value.order.sort = value['order[sort]'];
-      delete value['order[sort]'];
+      value['order[sort]'] = undefined;
     }
     if (Object.keys(value.filter).length == 0) {
       value.filter = undefined;

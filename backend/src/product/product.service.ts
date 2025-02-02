@@ -7,6 +7,7 @@ import { ProductPrice } from '../product-price/product-price.entity';
 import { CreateProductPriceDTO } from '../product-price/dto/create-product-price.dto';
 import { GetProductsQueryDTO } from './dto/get-products-query.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import { GetProductPricesDTO, GetProductsResponseDTO } from './dto/get-products-response.dto';
 
 @Injectable()
 export class ProductService {
@@ -35,7 +36,7 @@ export class ProductService {
     const match = price.replace('$', '').trim();
     const numeric = parseFloat(match);
 
-    if (isNaN(numeric)) {
+    if (Number.isNaN(numeric)) {
       return 0;
     }
 
@@ -64,35 +65,31 @@ export class ProductService {
       return { name, code, raw_price: price, expiration };
     });
 
-    try {
-      return await this.dataSource.transaction(async (manager) => {
-        const productRepository = manager.getRepository(Product);
-        const priceRepository = manager.getRepository(ProductPrice);
+    return await this.dataSource.transaction(async (manager) => {
+      const productRepository = manager.getRepository(Product);
+      const priceRepository = manager.getRepository(ProductPrice);
 
-        const createdProducts = productRepository.create(products);
-        const savedProducts = await productRepository.save(createdProducts);
+      const createdProducts = productRepository.create(products);
+      const savedProducts = await productRepository.save(createdProducts);
 
-        let prices: CreateProductPriceDTO[] = [];
-        savedProducts.forEach((product) => {
-          prices.push(
-            ...pricesList.map((price) => {
-              return {
-                currency_id: price.currency_id,
-                product_id: product.id,
-                value: price.value * product.raw_price,
-              };
-            }),
-          );
-        });
-
-        const createdPrices = priceRepository.create(prices);
-        const savedPrices = await priceRepository.save(createdPrices);
-
-        return savedProducts;
+      let prices: CreateProductPriceDTO[] = [];
+      savedProducts.forEach((product) => {
+        prices.push(
+          ...pricesList.map((price) => {
+            return {
+              currency_id: price.currency_id,
+              product_id: product.id,
+              value: price.value * product.raw_price,
+            };
+          }),
+        );
       });
-    } catch (error) {
-      throw error;
-    }
+
+      const createdPrices = priceRepository.create(prices);
+      const savedPrices = await priceRepository.save(createdPrices);
+
+      return savedProducts;
+    });
   }
 
   async findAll(query: GetProductsQueryDTO): Promise<GetProductsResponseDTO[]> {

@@ -1,3 +1,4 @@
+import { Min } from 'class-validator';
 import { Currency } from '../currency/currency.entity';
 import { Product } from '../product/product.entity';
 import {
@@ -8,9 +9,11 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  Unique,
 } from 'typeorm';
 
 @Entity('product_prices')
+@Unique(['product_id', 'currency_id', 'created_at'])
 export class ProductPrice {
   @PrimaryGeneratedColumn()
   id: number;
@@ -31,13 +34,14 @@ export class ProductPrice {
 
   @Column({
     type: 'decimal',
-    precision: 20,
-    scale: 10,
+    precision: 10,
+    scale: 2,
     transformer: {
       to: (value: number) => value,
       from: (value: string) => parseFloat(value),
     },
   })
+  @Min(0)
   value: number;
 
   @CreateDateColumn()

@@ -58,30 +58,35 @@ function Home() {
     let buffer = '';
 
     while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
+      try {
+        const { done, value } = await reader.read();
+        if (done) break;
 
-      buffer += decoder.decode(value, { stream: true });
-      let lines = buffer.split('\n');
-      buffer = lines.pop()!;
+        buffer += decoder.decode(value, { stream: true });
+        let lines = buffer.split('\n');
+        buffer = lines.pop()!;
 
-      lines.forEach((line) => {
-        if (!line) return;
+        lines.forEach((line) => {
+          if (!line) return;
 
-        if (line.startsWith('error:')) {
-          const error = JSON.parse(line.split('error:')[1]);
-          console.log(error.message);
-          setError(error.message);
-        } else if (line.startsWith('invalid:')) {
-          const invalid = JSON.parse(line.split('invalid:')[1]);
-          setInvalidLines(invalid);
-        } else if (line.startsWith('total:')) {
-          const total = line.split('total:')[1];
-          setTotalLines(parseInt(total));
-        } else {
-          setProgress(parseInt(line));
-        }
-      });
+          if (line.startsWith('error:')) {
+            const error = JSON.parse(line.split('error:')[1]);
+            console.log(error.message);
+            setError(error.message);
+          } else if (line.startsWith('invalid:')) {
+            const invalid = JSON.parse(line.split('invalid:')[1]);
+            setInvalidLines(invalid);
+          } else if (line.startsWith('total:')) {
+            const total = line.split('total:')[1];
+            setTotalLines(parseInt(total));
+          } else {
+            setProgress(parseInt(line));
+          }
+        });
+      } catch (error) {
+        if (error instanceof Error) setError('Error processing stream: ' + error.message);
+        break;
+      }
     }
   };
 
@@ -103,7 +108,7 @@ function Home() {
                       accept=".csv"
                       onChange={(e) => field.onChange(e.target.files)}
                       ref={(el) => {
-                        field.ref;
+                        field.ref(el);
                         inputRef.current = el;
                       }}
                     />

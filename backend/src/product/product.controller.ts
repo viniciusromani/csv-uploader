@@ -9,6 +9,7 @@ import { CreateProductDTO } from './dto/create-product.dto';
 import { Product } from './product.entity';
 import { GetProductsQueryDTO } from './dto/get-products-query.dto';
 import { ParseGetProductsQueryParamsPipe } from '../utils/parse-qp-get-products';
+import { GetProductsResponseDTO } from './dto/get-products-response.dto';
 
 @Controller('products')
 export class ProductController {
