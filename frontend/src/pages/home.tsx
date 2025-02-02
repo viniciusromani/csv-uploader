@@ -115,29 +115,30 @@ function Home() {
           />
           <Progress className="mt-2" value={progress} />
           <div className="text-right text-sm">{progress}%</div>
-          <div className="mt-4 space-y-3">
+          <div className="mt-4 mb-4">
             <LoadingButton type="submit" loading={progress > 0 && progress < 100}>
               Submit
             </LoadingButton>
-            {progress == 100 && totalLines > 0 && (
-              <div className="flex flex-col text-sm">
-                <span>Total Lines: {totalLines}</span>
-                <span>Processed Lines: {totalLines - invalidLines.length}</span>
-              </div>
-            )}
-            {invalidLines.length > 0 && (
-              <div className="flex gap-2 text-yellow-600 text-sm">
-                <TriangleAlert size={20} />
-                <div className="flex gap-1">
-                  <span>Some lines were not processed because they are not valid.</span>
-                  <InvalidLinesDialog invalidLines={invalidLines} />
-                </div>
-              </div>
-            )}
-            {error.length > 0 && (
-              <ErrorDialog open={true} message={error} setOpen={(_) => setError('')} onClose={reset} />
-            )}
           </div>
+          {progress == 100 && totalLines > 0 && (
+            <div className="flex flex-col text-sm gap-2">
+              <span className="text-green-700 font-bold">Upload successful</span>
+              <span>Total Lines: {totalLines}</span>
+              <span>Processed Lines: {totalLines - invalidLines.length}</span>
+            </div>
+          )}
+          {invalidLines.length > 0 && (
+            <div className="flex gap-2 text-yellow-600 text-sm mt-2">
+              <TriangleAlert size={20} />
+              <div className="flex gap-1">
+                <span>Some lines were not processed because they are not valid.</span>
+                <InvalidLinesDialog invalidLines={invalidLines} />
+              </div>
+            </div>
+          )}
+          {error.length > 0 && (
+            <ErrorDialog open={true} message={error} setOpen={(_) => setError('')} onClose={reset} />
+          )}
         </form>
       </Form>
     </div>
