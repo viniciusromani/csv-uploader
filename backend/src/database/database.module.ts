@@ -1,6 +1,8 @@
-import { Global, Module } from '@nestjs/common';
+import { Global, Module, Logger } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
+
+const logger = new Logger('DatabaseModule');
 
 @Global()
 @Module({
@@ -22,10 +24,10 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
             synchronize: configService.get<string>('NODE_ENV') !== 'production',
             ssl: configService.get<string>('NODE_ENV') === 'production' ? { rejectUnauthorized: true } : false,
           };
-          console.log('Database connected successfully');
+          logger.log('Database connected successfully');
           return config;
         } catch (error) {
-          console.error('Error connecting to database:', error.message);
+          logger.error('Error connecting to database:', error.message);
           throw error;
         }
       },

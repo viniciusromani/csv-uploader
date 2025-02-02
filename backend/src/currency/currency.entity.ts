@@ -16,6 +16,6 @@ export class Currency {
   is_enabled: boolean;
 
   // relationships
-  @OneToMany(() => ProductPrice, (price) => price.product)
+  @OneToMany(() => ProductPrice, (price) => price.currency)
   prices: ProductPrice[];
 }

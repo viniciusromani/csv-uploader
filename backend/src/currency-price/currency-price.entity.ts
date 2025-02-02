@@ -7,6 +7,7 @@ import {
   JoinColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  Index,
 } from 'typeorm';
 
 @Entity('currency_prices')
@@ -19,6 +20,7 @@ export class CurrencyPrice {
 
   @ManyToOne(() => Currency, (currency) => currency.prices)
   @JoinColumn({ name: 'currency_id' })
+  @Index()
   currency: Currency;
 
   @Column({ type: 'decimal', precision: 20, scale: 10 })

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { TriangleAlert } from 'lucide-react';
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
+import { getAPIURL } from '@/lib/config';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoadingButton, ErrorDialog } from '@/components/custom';
 import { Button, Input, Progress } from '@/components/shadcn';
@@ -20,7 +21,8 @@ import {
 const schema = z.object({
   file: z
     .custom<FileList>((val) => val instanceof FileList, 'File is required')
-    .refine((file) => file?.length === 1, 'File is required'),
+    .refine((file) => file?.length === 1, 'File is required')
+    .refine((file) => file[0]?.type === 'text/csv', 'Only CSV files are allowed'),
 });
 type FormSchema = z.infer<typeof schema>;
 
@@ -46,19 +48,20 @@ function Home() {
     const formData = new FormData();
     formData.append('file', data.file[0]);
 
-    const response = await fetch(`${process.env.API_URL}/products/csv-import`, {
-      method: 'POST',
-      body: formData,
-    });
+    try {
+      const { API_URL } = getAPIURL();
+      const response = await fetch(`${API_URL}/products/csv-import`, {
+        method: 'POST',
+        body: formData,
+      });
 
-    const reader = response.body?.getReader();
-    if (!reader) return;
+      const reader = response.body?.getReader();
+      if (!reader) return;
 
-    const decoder = new TextDecoder();
-    let buffer = '';
+      const decoder = new TextDecoder();
+      let buffer = '';
 
-    while (true) {
-      try {
+      while (true) {
         const { done, value } = await reader.read();
         if (done) break;
 
@@ -71,7 +74,6 @@ function Home() {
 
           if (line.startsWith('error:')) {
             const error = JSON.parse(line.split('error:')[1]);
-            console.log(error.message);
             setError(error.message);
           } else if (line.startsWith('invalid:')) {
             const invalid = JSON.parse(line.split('invalid:')[1]);
@@ -83,10 +85,9 @@ function Home() {
             setProgress(parseInt(line));
           }
         });
-      } catch (error) {
-        if (error instanceof Error) setError('Error processing stream: ' + error.message);
-        break;
       }
+    } catch (error) {
+      if (error instanceof Error) setError('Error processing stream: ' + error.message);
     }
   };
 

@@ -5,7 +5,7 @@ import { HttpModule } from '@nestjs/axios';
 import { Currency } from './currency.entity';
 import { CurrencyService } from './currency.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { CurrencyPriceModule } from '../currency-price/currency.price.module';
+import { CurrencyPriceModule } from '../currency-price/currency-price.module';
 
 @Module({
   imports: [

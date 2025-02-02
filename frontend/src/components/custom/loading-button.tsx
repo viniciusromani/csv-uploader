@@ -13,11 +13,11 @@ const LoadingButton = forwardRef<HTMLButtonElement, LoadingButtonProps>(function
   const isLoading = loading ?? false;
 
   return (
-    <Button ref={ref} disabled={isLoading} {...props}>
+    <Button ref={ref} disabled={isLoading} aria-busy={isLoading} {...props}>
       {isLoading ? (
         <>
-          <span>Please wait</span>
-          <Loader2 className="ml-2 h-4 w-4 animate-spin" />
+          <span aria-live="polite">Please wait</span>
+          <Loader2 className="ml-2 h-4 w-4 animate-spin" aria-hidden="true" />
         </>
       ) : (
         children

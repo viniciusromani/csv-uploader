@@ -7,9 +7,13 @@ import { getMockDataSource, getMockRepository } from '../utils/test-utils';
 import { ProductPrice } from '../product-price/product-price.entity';
 import { CreateProductDTO } from './dto/create-product.dto';
 import { GetPricesDTO } from '../currency/dto/get-prices.dto';
+import { CurrencyService } from '../currency/currency.service';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { HttpService } from '@nestjs/axios';
 
 describe('ProductService', () => {
   let productService: ProductService;
+  let currencyService: CurrencyService;
   let productRepository: Repository<Product>;
   let priceRepository: Repository<ProductPrice>;
   let dataSource: DataSource;
@@ -18,13 +22,20 @@ describe('ProductService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ProductService,
+        CurrencyService,
         getMockDataSource(Product),
         getMockRepository(Product),
         getMockRepository(ProductPrice),
+        { provide: CACHE_MANAGER, useValue: {} },
+        {
+          provide: HttpService,
+          useValue: { get: jest.fn() },
+        },
       ],
     }).compile();
 
     productService = module.get<ProductService>(ProductService);
+    currencyService = module.get<CurrencyService>(CurrencyService);
     productRepository = module.get(getRepositoryToken(Product));
     priceRepository = module.get(getRepositoryToken(ProductPrice));
     dataSource = module.get(DataSource);
@@ -78,7 +89,7 @@ describe('ProductService', () => {
         create: jest.fn().mockReturnValue(mockSavedProducts),
       };
 
-      const productServiceMock = new ProductService(dataSourceMock as any, productRepository);
+      const productServiceMock = new ProductService(dataSourceMock as any, productRepository, currencyService);
       const result = await productServiceMock.insertMany(productList, pricesList);
 
       expect(dataSourceMock.transaction).toHaveBeenCalledTimes(1);
@@ -91,6 +102,28 @@ describe('ProductService', () => {
 
       expect(priceRepositoryMock.create).toHaveBeenCalledTimes(1);
       expect(priceRepositoryMock.save).toHaveBeenCalledTimes(1);
+    });
+    describe('extractNameAndCode', () => {
+      it('should extract name and code correctly', () => {
+        const mock = 'Venison - Striploin #(5602222458020873)';
+        const expected = ['Venison - Striploin', '5602222458020873'];
+        expect(productService.extractNameAndCode(mock)).toEqual(expected);
+      });
+      it('should only extract name because code was not provided', () => {
+        const mock = 'Venison - Striploin';
+        const expected = ['Venison - Striploin', undefined];
+        expect(productService.extractNameAndCode(mock)).toEqual(expected);
+      });
+      it('should only extract name because code is not numeric', () => {
+        const mock = 'Venison - Striploin #(😍)';
+        const expected = ['Venison - Striploin', undefined];
+        expect(productService.extractNameAndCode(mock)).toEqual(expected);
+      });
+      it('should ignore trailing and leading whitespaces', () => {
+        const mock = '       Venison - Striploin            #(5602222458020873)  ';
+        const expected = ['Venison - Striploin', '5602222458020873'];
+        expect(productService.extractNameAndCode(mock)).toEqual(expected);
+      });
     });
   });
 
@@ -172,18 +205,20 @@ describe('ProductService', () => {
       expect(result).toEqual(expected);
     });
 
-    it('should throw', async () => {
-      const errorMessage = 'Database query failed';
-
+    it.each([
+      ['Database connection error', new Error('Connection refused')],
+      ['Query syntax error', new Error('Invalid SQL syntax')],
+      ['Constraint violation', new Error('Foreign key constraint failed')],
+    ])('should handle %s', async (_, error) => {
       const mockQueryBuilder = {
         innerJoinAndSelect: jest.fn().mockReturnThis(),
         andWhere: jest.fn().mockReturnThis(),
         orderBy: jest.fn().mockReturnThis(),
-        getMany: jest.fn().mockRejectedValue(new Error(errorMessage)),
+        getMany: jest.fn().mockRejectedValue(error),
       };
 
       jest.spyOn(productRepository, 'createQueryBuilder').mockImplementation(() => mockQueryBuilder as any);
-      await expect(productService.findAll({})).rejects.toThrow(errorMessage);
+      await expect(productService.findAll({})).rejects.toThrow(error.message);
     });
 
     describe('queryBuilder', () => {

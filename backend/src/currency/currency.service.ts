@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { HttpService } from '@nestjs/axios';
 import { DataSource, Repository } from 'typeorm';
@@ -18,6 +18,8 @@ export class CurrencyService {
 
     private readonly httpService: HttpService,
   ) {}
+
+  private readonly logger = new Logger(CurrencyService.name);
 
   async getCurrencies(): Promise<GetPricesDTO[]> {
     try {
@@ -57,7 +59,7 @@ export class CurrencyService {
         return dtos;
       });
     } catch (err) {
-      console.log('on error', err);
+      this.logger.error('Error getting currencies', err);
       return [];
     }
   }

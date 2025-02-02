@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { Product } from './product.entity';
 import { CreateProductDTO } from './dto/create-product.dto';
@@ -8,6 +8,10 @@ import { CreateProductPriceDTO } from '../product-price/dto/create-product-price
 import { GetProductsQueryDTO } from './dto/get-products-query.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GetProductPricesDTO, GetProductsResponseDTO } from './dto/get-products-response.dto';
+import { parseStream } from '@fast-csv/parse';
+import { CurrencyService } from '../currency/currency.service';
+import { Response } from 'express';
+import { Readable } from 'node:stream';
 
 @Injectable()
 export class ProductService {
@@ -16,81 +20,10 @@ export class ProductService {
 
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
+
+    @Inject()
+    private readonly currencyService: CurrencyService,
   ) {}
-
-  private extractNameAndCode(text: string): [string, string | undefined] {
-    const parts = text.split('#');
-
-    if (parts.length === 1) {
-      return [text.trim(), undefined];
-    }
-
-    const name = parts[0].trim();
-    const code = parts[1].trim().match(/\d+/)?.[0] ?? undefined;
-
-    return [name, code];
-  }
-  private extractPrice(price: string): number {
-    if (price.length == 0) return 0;
-
-    const match = price.replace('$', '').trim();
-    const numeric = parseFloat(match);
-
-    if (Number.isNaN(numeric)) {
-      return 0;
-    }
-
-    return numeric;
-  }
-  private extractExpirationDate(date: string): string | undefined {
-    if (date.length == 0) return undefined;
-
-    const parts = date.split('/');
-    if (parts.length !== 3) return undefined;
-
-    const [month, day, year] = parts.map(Number);
-    if (month < 1 || month > 12 || day < 1 || day > 31) return undefined;
-
-    const _date = new Date(year, month - 1, day);
-    const isValid = _date.getFullYear() === year && _date.getMonth() + 1 === month && _date.getDate() === day;
-
-    return isValid ? date : undefined;
-  }
-
-  async insertMany(productList: CreateProductDTO[], pricesList: GetPricesDTO[]): Promise<Product[]> {
-    const products = productList.map((product) => {
-      const [name, code] = this.extractNameAndCode(product.name);
-      const price = this.extractPrice(product.price);
-      const expiration = this.extractExpirationDate(product.expiration);
-      return { name, code, raw_price: price, expiration };
-    });
-
-    return await this.dataSource.transaction(async (manager) => {
-      const productRepository = manager.getRepository(Product);
-      const priceRepository = manager.getRepository(ProductPrice);
-
-      const createdProducts = productRepository.create(products);
-      const savedProducts = await productRepository.save(createdProducts);
-
-      let prices: CreateProductPriceDTO[] = [];
-      savedProducts.forEach((product) => {
-        prices.push(
-          ...pricesList.map((price) => {
-            return {
-              currency_id: price.currency_id,
-              product_id: product.id,
-              value: price.value * product.raw_price,
-            };
-          }),
-        );
-      });
-
-      const createdPrices = priceRepository.create(prices);
-      const savedPrices = await priceRepository.save(createdPrices);
-
-      return savedProducts;
-    });
-  }
 
   async findAll(query: GetProductsQueryDTO): Promise<GetProductsResponseDTO[]> {
     const queryBuilder = this.productRepository.createQueryBuilder('products');
@@ -146,6 +79,180 @@ export class ProductService {
       });
 
       return { ...product, prices };
+    });
+  }
+
+  extractNameAndCode(text: string): [string, string | undefined] {
+    const parts = text.split('#');
+
+    if (parts.length === 1) {
+      return [text.trim(), undefined];
+    }
+
+    const name = parts[0].trim();
+    const code = parts[1].trim().match(/\d+/)?.[0] ?? undefined;
+
+    return [name, code];
+  }
+  extractPrice(price: string): number {
+    if (price.length == 0) return 0;
+
+    const match = price.replace('$', '').trim();
+    const numeric = parseFloat(match);
+
+    if (Number.isNaN(numeric)) {
+      return 0;
+    }
+
+    return numeric;
+  }
+  extractExpirationDate(date: string): string | undefined {
+    if (date.length == 0) return undefined;
+
+    const parts = date.split('/');
+    if (parts.length !== 3) return undefined;
+
+    const [month, day, year] = parts.map(Number);
+    if (month < 1 || month > 12 || day < 1 || day > 31) return undefined;
+
+    const _date = new Date(year, month - 1, day);
+    const isValid = _date.getFullYear() === year && _date.getMonth() + 1 === month && _date.getDate() === day;
+
+    return isValid ? date : undefined;
+  }
+
+  async insertMany(productList: CreateProductDTO[], pricesList: GetPricesDTO[]): Promise<Product[]> {
+    const products = productList.map((product) => {
+      const [name, code] = this.extractNameAndCode(product.name);
+      const price = this.extractPrice(product.price);
+      const expiration = this.extractExpirationDate(product.expiration);
+      return { name, code, raw_price: price, expiration };
+    });
+
+    return await this.dataSource.transaction(async (manager) => {
+      const productRepository = manager.getRepository(Product);
+      const priceRepository = manager.getRepository(ProductPrice);
+
+      const createdProducts = productRepository.create(products);
+      const savedProducts = await productRepository.save(createdProducts);
+
+      let prices: CreateProductPriceDTO[] = [];
+      savedProducts.forEach((product) => {
+        prices.push(
+          ...pricesList.map((price) => {
+            return {
+              currency_id: price.currency_id,
+              product_id: product.id,
+              value: price.value * product.raw_price,
+            };
+          }),
+        );
+      });
+
+      const createdPrices = priceRepository.create(prices);
+      const savedPrices = await priceRepository.save(createdPrices);
+
+      return savedProducts;
+    });
+  }
+
+  async processCsv(file: Express.Multer.File, response: Response) {
+    // track progress variables
+    const totalSize = file.size;
+    let processedSize = 0;
+    // insert control variables
+    let lastProgress = 0;
+    const buffer: CreateProductDTO[] = [];
+    const insertPromises: Promise<Product[] | void>[] = [];
+    // invalid lines variables
+    let rowCounter = 1;
+    const invalidLines: number[] = [];
+
+    const currencies = await this.currencyService.getCurrencies();
+    const stream = this.getStream(file.buffer);
+    parseStream(stream, { headers: true, delimiter: ';', objectMode: true })
+      .validate((data) => {
+        if (!data.name || data.name.length == 0) return false;
+        if (!data.price || data.price.length == 0) return false;
+        return true;
+      })
+      .on('error', (error) => {
+        console.error('[ERROR]', error);
+      })
+      .on('data', (row) => {
+        rowCounter++;
+
+        // progress
+        const line = Object.values(row).join(';');
+        const lineSize = Buffer.byteLength(line, 'utf-8');
+        processedSize = processedSize + lineSize;
+        const progress = Math.round((processedSize / totalSize) * 100);
+        response.write(`${progress}\n`);
+
+        // saving on db
+        buffer.push(row);
+        if (progress >= lastProgress + 20) {
+          lastProgress = progress;
+
+          if (buffer.length > 0) {
+            insertPromises.push(
+              this.insertMany(buffer, currencies).catch((error) => this.writeResponseError(response, error)),
+            );
+            buffer.length = 0;
+          }
+        }
+      })
+      .on('data-invalid', (row) => {
+        rowCounter++;
+        invalidLines.push(rowCounter);
+        console.warn('invalid row', row);
+      })
+      .on('end', async (rowCount: number) => {
+        insertPromises.push(
+          this.insertMany(buffer, currencies).catch((error) => this.writeResponseError(response, error)),
+        );
+
+        try {
+          await Promise.all(insertPromises);
+        } catch (error) {
+          this.writeResponseError(response, error);
+          response.end();
+          return;
+        }
+        buffer.length = 0;
+
+        response.write('100\n');
+        response.write(`total:${rowCount}\n`);
+        response.write(`invalid:${JSON.stringify(invalidLines)}\n`);
+        response.end();
+      });
+  }
+
+  private writeResponseError(response: Response, error: any) {
+    response.write(
+      `error:${JSON.stringify({
+        message: 'Error inserting records on database',
+        error,
+      })}`,
+    );
+  }
+
+  private getStream(buffer: Buffer): Readable {
+    const CHUNK_SIZE = 16384;
+    let offset = 0;
+    return new Readable({
+      read(size) {
+        const chunkSize = Math.min(CHUNK_SIZE, buffer.length - offset);
+        if (chunkSize <= 0) {
+          this.push(null);
+          return;
+        }
+
+        const chunk = buffer.subarray(offset, offset + chunkSize);
+        offset += chunkSize;
+
+        this.push(chunk);
+      },
     });
   }
 }

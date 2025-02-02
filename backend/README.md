@@ -2,12 +2,12 @@
 <p align="center">
 <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
 </p>
-<p align="center">Scallable application to upload csv file on a database</p>
+<p align="center">Scalable application to upload csv file on a database</p>
 
 <!-- ABOUT THE PROJECT -->
 ## Description
 
-This is an application that allows users to upload a files (including larger's) and save it on a database. It is designed to save products and currency conversions by the time they were uploaded but it is easily changeable to save any type of data. 
+This is an application that allows users to upload files (including larger files) to be saved in a database. It is designed to store products and currency conversions timestamped by the time of upload, but it can be easily modified to handle any type of data.
 
 Files are processed with streams which makes it work with any size of data. There is a validation code section that allows users to define what is considered valid depending on incoming data. And, it has a good error treatment.
 
@@ -46,12 +46,14 @@ The following instructions get you a local running copy of the application.
    ```
 3. Create a `.env` file on project's root folder with the following variables:
    ```sh
+    NODE_ENV=development
     DATABASE_HOST=<your_database_host>
     DATABASE_PORT=<your_database_port>
     DATABASE_USER=<your_database_user>
     DATABASE_PASSWORD=<your_database_password>
     DATABASE_NAME=<your_database_name>
     PRICES_API_URL=<your_prices_api_url>
+    FRONTEND_URL=<your_frontend_url>
    ```
 Obs. To get currency prices, I usually use this [API](https://github.com/fawazahmed0/exchange-api)
 
@@ -83,7 +85,7 @@ Obs. To get currency prices, I usually use this [API](https://github.com/fawazah
 <!-- CONTRIBUTING -->
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions are what make the open source community such an incredible place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
 If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
 Don't forget to give the project a star! Thanks again!

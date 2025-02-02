@@ -10,6 +10,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   Unique,
+  Index,
 } from 'typeorm';
 
 @Entity('product_prices')
@@ -23,6 +24,7 @@ export class ProductPrice {
 
   @ManyToOne(() => Currency, (currency) => currency.prices)
   @JoinColumn({ name: 'currency_id' })
+  @Index()
   currency: Currency;
 
   @Column()
@@ -30,6 +32,7 @@ export class ProductPrice {
 
   @ManyToOne(() => Product, (product) => product.prices)
   @JoinColumn({ name: 'product_id' })
+  @Index()
   product: Product;
 
   @Column({

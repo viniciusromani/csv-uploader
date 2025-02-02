@@ -13,6 +13,9 @@ export default defineConfig({
     alias: { '@': path.resolve(__dirname, './src') },
   },
   define: {
-    'process.env': process.env,
+    'process.env': {
+      NODE_ENV: process.env.NODE_ENV,
+      API_URL: process.env.API_URL,
+    },
   },
 });

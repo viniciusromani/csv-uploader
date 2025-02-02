@@ -3,6 +3,7 @@ import { ProductController } from './product.controller';
 import { ProductService } from './product.service';
 import { CurrencyService } from '../currency/currency.service';
 import { GetProductsQueryDTO } from './dto/get-products-query.dto';
+import { GetProductsResponseDTO } from './dto/get-products-response.dto';
 
 describe('ProductController', () => {
   let productController: ProductController;

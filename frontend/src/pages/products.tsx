@@ -4,6 +4,7 @@ import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, Tabl
 import { formatCurrency, formatDate } from '@/lib/format';
 import { ProductResponse } from '@/types/product';
 import { ErrorDialog } from '@/components/custom';
+import { getAPIURL } from '@/lib/config';
 
 function Products() {
   const [loading, setLoading] = useState(true);
@@ -17,7 +18,8 @@ function Products() {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const result = await fetch(`${process.env.API_URL}/products`, {
+        const { API_URL } = getAPIURL();
+        const result = await fetch(`${API_URL}/products`, {
           signal: controller.signal,
           headers: {
             Accept: 'application/json',
