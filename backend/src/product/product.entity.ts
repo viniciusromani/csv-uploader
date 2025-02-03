@@ -11,8 +11,8 @@ export class Product {
 
   @Column({
     type: 'decimal',
-    precision: 10,
-    scale: 2,
+    precision: 20,
+    scale: 10,
     transformer: {
       to: (value: number) => value,
       from: (value: string) => parseFloat(value),
