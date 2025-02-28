@@ -36,7 +36,7 @@ The following instructions get you a local running copy of the application.
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/flatironsdevelopment/rails_node_test_viniciusromani.git
+   git clone https://github.com/viniciusromani/csv-uploader.git
    ```
 2. Install dependencies
    ```sh
